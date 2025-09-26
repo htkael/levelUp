@@ -1,4 +1,4 @@
-import { Logger } from "../shared/logger";
+import { Logger } from "../shared/logger.js";
 
 export async function iplog(req, res, next) {
   try {

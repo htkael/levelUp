@@ -2,16 +2,16 @@ import express from 'express'
 import bodyParser from 'body-parser'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
-import { iplog } from './middleware/iplog'
-import { Logger } from './shared/logger'
+import { iplog } from "./middleware/iplog.js"
+import { Logger } from './shared/logger.js'
 
 const PORT = process.env.PORT || 5678
 
-if (!process.end.VITE_NODE_ENV) {
+if (!process.env.VITE_NODE_ENV) {
   throw new Error("VITE_NODE_ENV NOT SET IN .env FILE!!")
 }
 
-if (!process.end.VITE_PROD_URL) {
+if (!process.env.VITE_PROD_URL) {
   throw new Error("VITE_PROD_URL NOT SET IN .env FILE!!")
 }
 
