@@ -1,0 +1,61 @@
+services:
+  pg:
+      container_name: pg
+      image: postgres
+      restart: always
+      environment:
+        POSTGRES_USER: ${POSTGRES_USER}
+        POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+        POSTGRES_DB: ${POSTGRES_DB}
+        POSTGRES_HOST: ${POSTGRES_HOST}
+        POSTGRES_PORT: ${POSTGRES_PORT}
+        SECRET_COOKIE: ${SECRET_COOKIE}
+      ports:
+        - ${POSTGRES_PORT}:${POSTGRES_PORT}
+      volumes:
+        - ./postgres_data:/var/lib/postgresql/data
+      command: ["postgres", "-c", "max_connections=200", "-p ${POSTGRES_PORT}"]
+      healthcheck:
+        test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+        interval: 10s
+        retries: 5
+
+  react:
+    container_name: react
+    build:
+      context: .
+      dockerfile: ./playground/Dockerfile.dev
+    environment:
+      VITE_NODE_ENV: ${VITE_NODE_ENV}
+      VITE_PROD_URL: ${VITE_PROD_URL}
+    volumes:
+      - ./playground/:/app
+      - /app/node_modules
+
+  factory:
+    container_name: factory
+    build:
+      context: .
+      dockerfile: ./factory/Dockerfile
+    environment:
+        POSTGRES_USER: ${POSTGRES_USER}
+        POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+        POSTGRES_DB: ${POSTGRES_DB}
+        POSTGRES_HOST: ${POSTGRES_HOST}
+        POSTGRES_PORT: ${POSTGRES_PORT}
+        DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
+        STARTUP_DELAY: 5
+
+    depends_on:
+      - pg
+    volumes:
+      - ./factory/:/usr/src/app
+      - ./factory/logs:/usr/src/app/logs
+      - /usr/src/app/node_modules
+      - ./playground/dist:/usr/src/app/dist
+    ports:
+      - "5678:5678"
+    links:
+      - pg
+    networks:
+      - default

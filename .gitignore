@@ -1,25 +1,42 @@
-# Dependencies and AdonisJS build
-node_modules
-build
-tmp
-
-# Secrets
+django/
+activate
+core
 .env
-.env.local
-.env.production.local
-.env.development.local
+.env.*
+*.tar
+!.env.example
+web/.env
+web/.env.production
+.dockersetup
+.initial_setup
+.venv/
+.vscode/
+.django/
+__pycache__/
+postgres_data/
+*.pyo
+*.yml
+*.pyc
+*.egg-info
+*.log
+*.DS_Store
+*.swp
+*.tmp
+*.sqlite3
+*.sqlite
+*.log
+logs/
+cache/
+resp.json
+login.json
+/analytics/grafana
+/analytics/prometheus
+/scripts/dbtools/backups/
+/scripts/dbtools/db_backups.txt
 
-# Frontend assets compiled code
-public/assets
 
-# Build tools specific
-npm-debug.log
-yarn-error.log
-
-# Editors specific
-.fleet
-.idea
-.vscode
-
-# Platform specific
-.DS_Store
+**/migrations/*
+!**/migrations/__init__.py
+node_modules/
+web/node_modules/
+web/.vite/
