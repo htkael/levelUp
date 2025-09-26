@@ -4,14 +4,10 @@ WORKDIR /app
 
 EXPOSE 6900
 
-COPY ./factory/package.json ./
+COPY ./playground/package.json ./
 
 RUN npm i -g
 
-COPY ./factory ./
-
-RUN npm i -D tailwindcss
-RUN npx tailwind init -p
-
+COPY ./playground ./
 
 CMD ["ash", "/app/setup.sh"]

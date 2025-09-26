@@ -7,10 +7,10 @@ WORKDIR /usr/src/app
 
 EXPOSE 5678
 
-COPY ./reaper/package.json ./
+COPY ./factory/package.json ./
 
 RUN npm install -D
 
-COPY ./reaper ./
+COPY ./factory ./
 
 CMD ["sh", "/usr/src/app/setup.sh"]
