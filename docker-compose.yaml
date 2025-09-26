@@ -1,7 +1,7 @@
 services:
   pg:
     container_name: pg
-    image: postgres
+    image: postgres:17
     restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -13,8 +13,7 @@ services:
     ports:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     volumes:
-      # Use a named volume for persistent data. This is correct.
-      - postgres_data:/var/lib/postgresql/data
+      - ./postgres_data:/var/lib/postgresql/data
     command: ["postgres", "-c", "max_connections=200", "-p ${POSTGRES_PORT}"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
@@ -30,9 +29,7 @@ services:
       VITE_NODE_ENV: ${VITE_NODE_ENV}
       VITE_PROD_URL: ${VITE_PROD_URL}
     volumes:
-      # Bind mount the app code from host to container
       - ./playground/:/app
-      # Use an anonymous volume to prevent host's node_modules from being used
       - /app/node_modules
 
   factory:
@@ -51,13 +48,10 @@ services:
     depends_on:
       - pg
     volumes:
-      # These are correct bind mounts for your application code and logs.
       - ./factory/:/usr/src/app
       - ./factory/logs:/usr/src/app/logs
-      # Use an anonymous volume to prevent host's node_modules from being used
       - /usr/src/app/node_modules
       - ./playground/dist:/usr/src/app/dist
-      # REMOVED: - ./postgres_data  <-- This was the source of the conflict.
     ports:
       - "5678:5678"
     links:
@@ -65,11 +59,3 @@ services:
     networks:
       - default
 
-volumes:
-  # This named volume is for PostgreSQL data persistence only.
-  # It is managed by Docker, avoiding host permission issues.
-  postgres_data: {}
-
-networks:
-  default:
-    name: levelup_default
