@@ -6,3 +6,150 @@ datasource db {
   provider = "postgres"
   url      = env("DATABASE_URL")
 }
+
+model Group {
+  id        Int         @id @default(autoincrement())
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  name      String      @unique @db.VarChar(120)
+  UserGroup UserGroup[]
+  Category  Category[]
+  Activity  Activity[]
+  Goal      Goal[]
+}
+
+model User {
+  id            Int             @id @default(autoincrement())
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  username      String          @unique @db.VarChar(80)
+  email         String          @unique @db.VarChar(120)
+  passwordHash  String
+  firstName     String?         @db.VarChar(80)
+  lastName      String?         @db.VarChar(80)
+  UserGroup     UserGroup[]
+  Category      Category[]
+  Activity      Activity[]
+  ProgressEntry ProgressEntry[]
+  Goal          Goal[]
+}
+
+model UserGroup {
+  id        Int        @id @default(autoincrement())
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  group     Group      @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId   Int
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  groupType GroupTypes @default(GUILD)
+  role      GroupRoles @default(MEMBER)
+}
+
+model Category {
+  id          Int        @id @default(autoincrement())
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  name        String     @db.VarChar(100)
+  description String?
+  color       String?    @db.VarChar(7)
+  user        User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int?
+  group       Group?     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId     Int?
+  Activity    Activity[]
+
+  @@unique([userId, name])
+  @@unique([groupId, name])
+}
+
+model Activity {
+  id             Int              @id @default(autoincrement())
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  name           String           @db.VarChar(100)
+  description    String?
+  isActive       Boolean          @default(true)
+  user           User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         Int?
+  group          Group?           @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId        Int?
+  category       Category         @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId     Int
+  ActivityMetric ActivityMetric[]
+  ProgressEntry  ProgressEntry[]
+  Goal           Goal[]
+
+  @@unique([userId, name])
+  @@unique([groupId, name])
+}
+
+model ActivityMetric {
+  id             Int              @id @default(autoincrement())
+  createdAt      DateTime         @default(now())
+  metricName     String           @db.VarChar(120)
+  metricType     String           @db.VarChar(20)
+  unit           String?          @db.VarChar(50)
+  isPrimary      Boolean          @default(false)
+  activity       Activity         @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  activityId     Int
+  ProgressMetric ProgressMetric[]
+  Goal           Goal[]
+}
+
+model ProgressEntry {
+  id             Int              @id @default(autoincrement())
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  entryDate      DateTime         @db.Date
+  notes          String?
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         Int
+  activity       Activity         @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  activityId     Int
+  ProgressMetric ProgressMetric[]
+}
+
+model ProgressMetric {
+  id        Int            @id @default(autoincrement())
+  createdAt DateTime       @default(now())
+  value     Decimal        @db.Decimal(10, 2)
+  metric    ActivityMetric @relation(fields: [metricId], references: [id], onDelete: Cascade)
+  metricId  Int
+  entry     ProgressEntry  @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  entryId   Int
+
+  @@unique([entryId, metricId])
+}
+
+model Goal {
+  id           Int            @id @default(autoincrement())
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  targetValue  Decimal        @db.Decimal(10, 2)
+  targetPeriod String         @db.VarChar(20)
+  startDate    DateTime       @db.Date
+  endDate      DateTime       @db.Date
+  isActive     Boolean        @default(true)
+  user         User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       Int?
+  group        Group?         @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId      Int?
+  activity     Activity       @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  activityId   Int
+  metric       ActivityMetric @relation(fields: [metricId], references: [id], onDelete: Cascade)
+  metricId     Int
+}
+
+enum GroupTypes {
+  FAMILY
+  CORPORATION
+  GUILD
+  CLAN
+}
+
+enum GroupRoles {
+  ADMIN
+  MODERATOR
+  MEMBER
+}

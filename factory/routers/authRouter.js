@@ -1,5 +1,5 @@
 import express from "express"
-import { Logger } from "../shared/logger"
+import { Logger } from "../shared/logger.js"
 
 export const authRouter = express.Router()
 

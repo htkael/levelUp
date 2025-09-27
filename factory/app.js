@@ -1,7 +1,9 @@
 import express from 'express'
 import bodyParser from 'body-parser'
 import cors from 'cors'
+import helmet from "helmet";
 import cookieParser from 'cookie-parser'
+import { rootRouter } from "./routers/api-router.js"
 import { iplog } from "./middleware/iplog.js"
 import { Logger } from './shared/logger.js'
 
