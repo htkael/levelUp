@@ -8,3 +8,5 @@ noAuthRouter.get("/", async (req, res) => {
     randomData: randomUUID()
   })
 })
+
+
