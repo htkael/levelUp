@@ -21,11 +21,12 @@ const factory = express()
 
 factory.set('trust proxy', true)
 
-factory.set(cookieParser(process.env.SECRET_COOKIE))
+factory.use(cookieParser(process.env.SECRET_COOKIE))
 factory.use(bodyParser.json({ limit: '100mb' }))
 factory.use(bodyParser.urlencoded({ extended: false, limit: "100mb" }))
 
-factory.use(cors({ origin: process.env.VITE_PROD_URL }))
+factory.use(cors({ origin: process.env.VITE_PROD_URL, credentials: true }))
+
 
 factory.use(iplog)
 

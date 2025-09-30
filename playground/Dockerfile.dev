@@ -2,7 +2,7 @@ FROM node:20-alpine
 WORKDIR /app
 EXPOSE 6900
 
-COPY ./playground/package.json ../
+COPY ./playground/package.json ./
 
 RUN npm i --force
 

@@ -12,4 +12,24 @@ export default defineConfig({
     }),
     tailwindcss()
   ],
+  server: {
+    host: true,
+    port: 6900,
+    watch: {
+      usePolling: true
+    }
+  },
+  build: {
+    watch: {
+      chokidar: {
+        usePolling: true
+      },
+      emptyOutDir: true
+    },
+    sourcemap: true,
+    minify: false
+  },
+  esbuild: {
+    sourcemap: true
+  }
 })

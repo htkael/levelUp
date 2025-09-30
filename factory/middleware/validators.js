@@ -1,7 +1,7 @@
 import pg from "../pg-cli.js"
-import { Logger } from "../shared/logger"
+import { Logger } from "../shared/logger.js"
 
-export const ValidateNewUser = async ({ user }) => {
+export const ValidateNewUser = async (user) => {
   let ValidatedUser = {
     username: null,
     email: null,
@@ -43,8 +43,8 @@ export const ValidateNewUser = async ({ user }) => {
     ValidatedUser.password = user.password
 
     let ce = user.email.trim().toLowerCase()
-    let checkEmail = checkEmail(ce)
-    if (checkEmail) {
+    let emailCheck = checkEmail(ce)
+    if (emailCheck) {
       return { error: checkEmail }
     }
 
@@ -88,8 +88,8 @@ export const ValidateNewUser = async ({ user }) => {
 
 
   } catch (error) {
-    Logger.error("====== Failed to vaildate new user ======", { error })
-    return { error }
+    Logger.error("====== Failed to vaildate new user ======", { error: error.message })
+    return { error: error.message || "An unexpected error occurred during validation" }
   }
 }
 

@@ -1,7 +1,7 @@
 import { Logger } from "../shared/logger.js"
-import pg from "../pg-cli.js"
 import { ValidateNewUser } from "../middleware/validators.js"
 import { Argon2id } from "oslo/password"
+import { CreateAndLog } from "../shared/dbFuncs.js"
 
 
 //model User {
@@ -23,8 +23,9 @@ import { Argon2id } from "oslo/password"
 export async function CreateUser(req, res) {
   try {
     const { user } = req.body
+    Logger.debug("===== USER INCOMING =====", { user })
 
-    const validatedUser = await ValidateNewUser(user)
+    let validatedUser = await ValidateNewUser(user)
 
     if (validatedUser?.error) {
       throw new Error(validatedUser.error)
@@ -32,11 +33,21 @@ export async function CreateUser(req, res) {
 
     const passwordHash = await new Argon2id().hash(validatedUser.password)
 
-    const newUser = (await pg.query(`
-      INSERT INTO "User"
-      ("username", "email", "passwordHash")
-      VALUES ($1, $2, $3)
-      RETURNING *
-    `, [validatedUser.username, validatedUser.email, passwordHash])).rows
+    validatedUser.passwordHash = passwordHash
+    validatedUser.updatedAt = new Date()
+    delete validatedUser.password
+
+    Logger.debug("validatedUser", validatedUser)
+
+    const newUser = await CreateAndLog("User", validatedUser)
+
+    if (newUser?.error) {
+      throw new Error(`Error creating user: ${newUser.error}`)
+    }
+
+    return res.send({ success: true })
+  } catch (error) {
+    Logger.error("Error adding user", { error: error || error.toString() })
+    return res.send({ success: false, error: error || error.toString() })
   }
 }

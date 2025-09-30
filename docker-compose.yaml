@@ -28,6 +28,7 @@ services:
     environment:
       VITE_NODE_ENV: ${VITE_NODE_ENV}
       VITE_PROD_URL: ${VITE_PROD_URL}
+      VITE_API_URL: ${VITE_API_URL}
     volumes:
       - ./playground/:/app
       - /app/node_modules
@@ -46,6 +47,7 @@ services:
       DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
       VITE_NODE_ENV: ${VITE_NODE_ENV}
       VITE_PROD_URL: ${VITE_PROD_URL}
+      VITE_API_URL: ${VITE_API_URL}
       STARTUP_DELAY: 5
     depends_on:
       - pg
