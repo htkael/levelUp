@@ -1,72 +1,48 @@
-@import "tailwindcss"
-@tailwind base;
-@tailwind components;
-
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@import "tailwindcss";
+@plugin "daisyui";
+@plugin "daisyui/theme" {
+  name: "levelup";
+  default: true;
+  prefersdark: false;
+  color-scheme: dark;
+  /* Base colors - using Outer space (#36494E) as main background */
+  --color-base-100: oklch(39.13% 0.025 215.67); /* Main background - Outer space */
+  --color-base-200: oklch(33.5% 0.025 215.67);  /* Darker shade for cards/panels */
+  --color-base-300: oklch(28% 0.025 215.67);    /* Darkest shade for inputs/borders */
+  --color-base-content: oklch(95% 0.01 215.67); /* Text on base colors - very light */
+  /* Primary - Air superiority blue (#7EA0B7) */
+  --color-primary: oklch(68.85% 0.051 238.06);
+  --color-primary-content: oklch(20% 0.02 238.06); /* Dark text for primary buttons */
+  /* Secondary - Uranian Blue (brighter complement) */
+  --color-secondary: oklch(83.76% 0.066 249.31);
+  --color-secondary-content: oklch(20% 0.02 249.31); /* Dark text for secondary buttons */
+  /* Accent - Payne's gray (#597081) */
+  --color-accent: oklch(53.31% 0.038 240.43);
+  --color-accent-content: oklch(98% 0.01 240.43); /* Light text for accent */
+  /* Neutral - Dark gray instead of pure black (#1a1a1a) */
+  --color-neutral: oklch(15% 0.005 240);
+  --color-neutral-content: oklch(95% 0.01 240); /* Light text on neutral */
+  /* Info - bright blue */
+  --color-info: oklch(70% 0.18 230);
+  --color-info-content: oklch(20% 0.02 230); /* Dark text for info */
+  /* Success - vibrant green */
+  --color-success: oklch(70% 0.18 145);
+  --color-success-content: oklch(20% 0.02 145); /* Dark text for success */
+  /* Warning - golden yellow */
+  --color-warning: oklch(80% 0.15 85);
+  --color-warning-content: oklch(20% 0.02 85); /* Dark text for warning */
+  /* Error - red */
+  --color-error: oklch(60% 0.20 20);
+  --color-error-content: oklch(98% 0.01 20); /* Light text for error */
+  /* Additional theme customizations */
+  --rounded-box: 0.75rem;
+  --rounded-btn: 0.5rem;
+  --rounded-badge: 1rem;
+  --animation-btn: 0.25s;
+  --animation-input: 0.2s;
+  --btn-focus-scale: 0.95;
+  --border-btn: 1px;
+  --tab-border: 1px;
+  --tab-radius: 0.5rem;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-}
