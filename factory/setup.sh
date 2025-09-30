@@ -9,7 +9,6 @@ npx prisma generate
 npx prisma db push --accept-data-loss
 
 if [ ! -f ".initial_setup" ]; then
-  node populatedata.js &
   touch ".initial_setup"
   echo "performed initial setup..."
 fi
