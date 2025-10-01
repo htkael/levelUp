@@ -3,24 +3,7 @@ import { ValidateNewUser } from "../middleware/validators.js"
 import { Argon2id } from "oslo/password"
 import { CreateAndLog } from "../shared/dbFuncs.js"
 
-
-//model User {
-//  id            Int             @id @default(autoincrement())
-//  createdAt     DateTime        @default(now())
-//  updatedAt     DateTime        @updatedAt
-//  username      String          @unique @db.VarChar(80)
-//  email         String          @unique @db.VarChar(120)
-//  passwordHash  String
-//  firstName     String?         @db.VarChar(80)
-//  lastName      String?         @db.VarChar(80)
-//  UserGroup     UserGroup[]
-//  Category      Category[]
-//  Activity      Activity[]
-//  ProgressEntry ProgressEntry[]
-//  Goal          Goal[]
-//}
-
-export async function CreateUser(req, res) {
+export async function registerUser(req, res) {
   try {
     const { user } = req.body
     Logger.debug("===== USER INCOMING =====", { user })
