@@ -1,7 +1,7 @@
-import { Logger } from "../shared/logger.js"
-import { ValidateNewUser } from "../middleware/validators.js"
+import { Logger } from "../../shared/logger.js"
 import { Argon2id } from "oslo/password"
-import { CreateAndLog } from "../shared/dbFuncs.js"
+import { ValidateNewUser } from "../../middleware/validators.js"
+import { CreateAndLog } from "../../shared/dbFuncs.js"
 
 export async function registerUser(req, res) {
   try {
@@ -9,6 +9,7 @@ export async function registerUser(req, res) {
     Logger.debug("===== USER INCOMING =====", { user })
 
     let validatedUser = await ValidateNewUser(user)
+    Logger.debug("valid user result", { validatedUser })
 
     if (validatedUser?.error) {
       throw new Error(validatedUser.error)
@@ -30,7 +31,7 @@ export async function registerUser(req, res) {
 
     return res.send({ success: true })
   } catch (error) {
-    Logger.error("Error adding user", { error: error || error.toString() })
-    return res.send({ success: false, error: error || error.toString() })
+    Logger.error("Error adding user", { error: error.message })
+    return res.send({ success: false, error: error.message })
   }
 }

@@ -1,21 +1,29 @@
 import { EmailInput, TextInput, PasswordInput } from "../components/forms/FormInputs.jsx"
 import { Form } from "../components/forms/Form.jsx"
 import { api } from "../utils/api.js";
+import { useState } from "react";
+import { validateRegister } from "../utils/validators.js";
 
 export default function Register() {
+  const [error, setError] = useState(null)
   const initialData = {
-    email: '',
-    username: '',
-    password: '',
-    passwordConf: '',
+    email: 'htkael@gmail.com',
+    username: 'hunter.dev',
+    password: 'Password!123',
+    passwordConf: 'Password!123',
     firstName: '',
     lastName: ''
   };
 
   const handleSubmit = async (formData) => {
+    const registerTest = validateRegister(formData)
+    if (registerTest) {
+      setError(registerTest)
+    }
     const response = await api("POST", "/no-auth/create-user", { user: formData })
-    console.log("response", response)
-    console.log('Form submitted:', formData);
+    if (response?.error) {
+      setError(response.error)
+    }
   };
 
   return (
@@ -31,7 +39,7 @@ export default function Register() {
           </p>
         </div>
 
-        <Form formHeader={"Create Account"} initialData={initialData} onSubmit={handleSubmit} submitText='Begin Your Journey' registerForm={true}>
+        <Form formHeader={"Create Account"} initialData={initialData} onSubmit={handleSubmit} submitText='Begin Your Journey' registerForm={true} error={error}>
           <EmailInput label="Email *" name="email" required />
           <TextInput label="Username *" name="username" required />
           <TextInput label="First Name" name="firstName" />

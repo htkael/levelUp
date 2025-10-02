@@ -24,6 +24,7 @@ export const Form = ({
   submitText = "Save",
   styles = {},
   registerForm = false,
+  error = null
 }) => {
   const [formData, setFormData] = useState(initialData);
 
@@ -64,7 +65,12 @@ export const Form = ({
         <h2 className={`card-title text-2xl justify-center mb-4 text-primary ${styles.formTitle}`}>
           {formHeader}
         </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {error && (
+          <div className="alert alert-error mb-4">
+            <span>{error}</span>
+          </div>
+        )}
+        <form onSubmit={handleSubmit} className="space-y-4 flex flex-col items-center">
           <FormContxt.Provider value={contextValue}>
             {children}
           </FormContxt.Provider>

@@ -45,7 +45,8 @@ export const ValidateNewUser = async (user) => {
     let ce = user.email.trim().toLowerCase()
     let emailCheck = checkEmail(ce)
     if (emailCheck) {
-      return { error: checkEmail }
+      Logger.debug("emailCheck", emailCheck)
+      return { error: emailCheck }
     }
 
     try {
