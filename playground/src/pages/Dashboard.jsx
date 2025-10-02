@@ -7,6 +7,8 @@ import {
   FireIcon,
   ArrowTrendingUpIcon
 } from "@heroicons/react/24/outline"
+import { StatCard } from "../components/shared/StatCard"
+import { Header } from "../components/shared/Header"
 
 export const Dashboard = () => {
   const { user, handleLogout } = useContext(AuthContext)
@@ -34,26 +36,7 @@ export const Dashboard = () => {
   return (
     <div className="min-h-screen bg-base-200">
       {/* Header */}
-      <div className="navbar bg-base-100 shadow-sm">
-        <div className="flex-1">
-          <h1 className="text-xl font-bold">Level Up Dashboard</h1>
-        </div>
-        <div className="flex-none gap-2">
-          <div className="dropdown dropdown-end">
-            <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar placeholder">
-              <div className="bg-neutral text-neutral-content rounded-full w-10">
-                <span className="text-lg">{user?.username?.charAt(0).toUpperCase()}</span>
-              </div>
-            </div>
-            <ul tabIndex={0} className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
-              <li><a className="justify-between">Profile</a></li>
-              <li><a className="justify-between">Settings</a></li>
-              <li><button onClick={handleLogout}>Logout</button></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
+      <Header />
       <div className="container mx-auto px-4 py-6">
         {/* Welcome Section */}
         <div className="mb-8">
@@ -63,41 +46,10 @@ export const Dashboard = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div className="stat bg-base-100 rounded-lg shadow-sm">
-            <div className="stat-figure text-primary">
-              <ChartBarIcon className="w-8 h-8" />
-            </div>
-            <div className="stat-title">Categories</div>
-            <div className="stat-value text-primary">{stats.totalCategories}</div>
-            <div className="stat-desc">Active tracking areas</div>
-          </div>
-
-          <div className="stat bg-base-100 rounded-lg shadow-sm">
-            <div className="stat-figure text-secondary">
-              <ArrowTrendingUpIcon className="w-8 h-8" />
-            </div>
-            <div className="stat-title">This Week</div>
-            <div className="stat-value text-secondary">{stats.weeklyActivities}</div>
-            <div className="stat-desc">Activities completed</div>
-          </div>
-
-          <div className="stat bg-base-100 rounded-lg shadow-sm">
-            <div className="stat-figure text-accent">
-              <FireIcon className="w-8 h-8" />
-            </div>
-            <div className="stat-title">Current Streak</div>
-            <div className="stat-value text-accent">{stats.currentStreak}</div>
-            <div className="stat-desc">Days in a row</div>
-          </div>
-
-          <div className="stat bg-base-100 rounded-lg shadow-sm">
-            <div className="stat-figure text-info">
-              <TrophyIcon className="w-8 h-8" />
-            </div>
-            <div className="stat-title">Total Entries</div>
-            <div className="stat-value text-info">{stats.totalEntries}</div>
-            <div className="stat-desc">All time progress</div>
-          </div>
+          <StatCard name="Categories" value={stats.totalCategories} subtitle="Active tracking areas" icon={<ChartBarIcon className="w-8 h-8" />} />
+          <StatCard name="This Week" value={stats.weeklyActivities} subtitle="Activities Completed" icon={<ArrowTrendingUpIcon className="w-8 h-8" />} />
+          <StatCard name="Current Streak" value={stats.currentStreak} subtitle="Days in a row" icon={<FireIcon className="w-8 h-8" />} />
+          <StatCard name="Total Entries" value={stats.totalEntries} subtitle="All time progress" icon={<TrophyIcon className="w-8 h-8" />} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
