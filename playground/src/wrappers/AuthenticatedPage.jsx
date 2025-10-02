@@ -23,7 +23,9 @@ const AuthenticatedPage = () => {
 
   return (
     <div className="min-h-screen flex">
-      <Outlet user={user} />
+      <div className="min-w-screen">
+        <Outlet user={user} />
+      </div>
     </div>
   );
 }

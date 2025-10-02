@@ -2,7 +2,7 @@ import pg from "../../pg-cli.js";
 import { lucia } from "../../auth/lucia.js"
 import { Argon2id } from "oslo/password"
 import { Logger } from "../../shared/logger.js";
-import { isValidEmail } from "../../auth/auth-helpers.js";
+import { getUserToken, isValidEmail } from "../../auth/auth-helpers.js";
 
 export async function login(req, res) {
   try {
@@ -86,4 +86,35 @@ export async function login(req, res) {
     await new Promise(resolve => setTimeout(resolve, 2000))
     return res.send({ success: false, error: error.message })
   }
+}
+
+export async function logout(req, res) {
+  try {
+    const user = res?.locals?.user
+
+    if (user && user?.id) {
+      Logger.debug("Invalidating user sessions", { user: user?.id })
+      await lucia.invalidateUserSessions(user.id)
+    } else {
+      const sessionId = getUserToken(req)
+      if (sessionId) {
+        Logger.debug("Invalidating session", { sessionId })
+        await lucia.invalidateSession(sessionId)
+      }
+    }
+  } catch (error) {
+    Logger.error("unable to logout", { error })
+  }
+
+  const sessionCookie = lucia.createBlankSessionCookie()
+  res.cookie(sessionCookie.name, sessionCookie.value, {
+    secure: process.env.VITE_NODE_ENV === 'production',
+    path: "/",
+    sameSite: "lax",
+    httpOnly: true,
+    expires: sessionCookie.attributes?.expires,
+    maxAge: sessionCookie.attributes?.maxAge
+  })
+
+  return res.send({ success: true })
 }

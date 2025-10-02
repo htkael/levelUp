@@ -1,7 +1,7 @@
 import express from "express";
 import { randomUUID } from "crypto"
-import { registerUser } from "../controllers/noAuth/register.js";
-import { login } from "../controllers/noAuth/login.js";
+import { registerUser } from "../end-points/noAuth/register.js";
+import { login } from "../end-points/noAuth/login.js";
 
 export const noAuthRouter = express.Router()
 
@@ -11,6 +11,6 @@ noAuthRouter.get("/data", async (req, res) => {
   })
 })
 
-noAuthRouter.post("/create-user", registerUser)
+noAuthRouter.post("/register", registerUser)
 noAuthRouter.post("/login", login)
 

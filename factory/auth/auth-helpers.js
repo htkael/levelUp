@@ -1,5 +1,6 @@
 import { Logger } from "../shared/logger.js";
 import { lucia } from "./lucia.js";
+import pg from "../pg-cli.js";
 
 export function isValidEmail(email) {
   return /.+@.+/.test(email)
@@ -58,13 +59,13 @@ export async function validateUser(req, res) {
   try {
     const { user } = await lucia.validateSession(getUserToken(req))
     if (!user) {
-      throw "invalid user session"
+      throw new Error("invalid user session")
     }
 
-    let u = (await pg.query(`SELECT * FROM "User" WHERE id = $1v`, [user.id])).rows
+    let u = (await pg.query(`SELECT * FROM "User" WHERE id = $1`, [user.id])).rows
 
     if (u.length !== 1) {
-      ; throw "no access to user or doesn't exist in database"
+      throw new Error("no access to user or doesn't exist in database")
     }
 
     let userData = {
@@ -74,10 +75,10 @@ export async function validateUser(req, res) {
 
     return res.send({ success: true, user: { ...userData } })
   } catch (error) {
-    Logger.error("validateUser failed", { error });
+    Logger.error("validateUser failed", { error: error?.message, stack: error.stack });
     if (error === 'invalid user session') {
-      return res.send({ error, invalid: true });
+      return res.send({ error: error?.message, invalid: true });
     }
-    return res.send({ error, invalid: false });
+    return res.send({ error: error?.message, invalid: false });
   }
 }
