@@ -5,6 +5,17 @@ import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 
+const registerLink = () => {
+  return (
+    <p className="text-center mt-6 text-sm text-accent-content opacity-70">
+      Don't have an account?{" "}
+      <a href="/register" className="link link-primary font-medium">
+        Register
+      </a>
+    </p>
+  )
+}
+
 export const Login = () => {
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -48,7 +59,7 @@ export const Login = () => {
           </p>
         </div>
 
-        <Form formHeader={"Login"} initialData={initialData} onSubmit={login} submitText='Enter' error={error}>
+        <Form formHeader={"Login"} initialData={initialData} onSubmit={login} submitText='Enter' error={error} link={registerLink}>
           {loading && (
             <span className="loading loading-infinity loading-xl"></span>
           )}

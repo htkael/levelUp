@@ -6,7 +6,7 @@ import { deleteCookie } from "../utils/auth.js";
 export const AuthContext = createContext()
 
 export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(undefined)
   const [user, setUser] = useState(null)
 
   const navigate = useNavigate()
@@ -49,12 +49,20 @@ export const AuthProvider = ({ children }) => {
   }
 
   const handleLogout = async () => {
-    await api("/auth/logout")
+    await api("POST", "/auth/logout")
     setIsAuthenticated(false)
     setUser(null)
     deleteCookie("authToken")
-    if (!window.location.href.includes('login')) {
-      navigate("/login", { replace: true })
+    const allowed = ['login', 'register']
+    let okay = false
+    for (let i = 0; i < allowed.length; i++) {
+      if (window.location.href.includes(allowed[i])) {
+        okay = true
+        break
+      }
+    }
+    if (!okay) {
+      navigate("/login", { replace: true });
     }
   }
 

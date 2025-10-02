@@ -16,7 +16,7 @@ export const FormInput = ({
 }) => {
   if (!styles) {
     styles = {
-      wrapper: `form-control `,
+      wrapper: `form-control w-full`,
       label: "label-text text-secondary",
       input:
         "input input-ghost validator input-bordered w-full bg-base-100 text-base-content",

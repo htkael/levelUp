@@ -23,7 +23,7 @@ export const Form = ({
   deleteText = "Delete",
   submitText = "Save",
   styles = {},
-  registerForm = false,
+  link = null,
   error = null
 }) => {
   const [formData, setFormData] = useState(initialData);
@@ -91,14 +91,7 @@ export const Form = ({
           </button>
         )}
         {/* Login Link */}
-        {registerForm && (
-          <p className="text-center mt-6 text-sm text-accent-content opacity-70">
-            Already have an account?{" "}
-            <a href="#" className="link link-primary font-medium">
-              Log in
-            </a>
-          </p>
-        )}
+        {link?.()}
       </div>
     </div>
   );

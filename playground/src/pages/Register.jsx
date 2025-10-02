@@ -3,26 +3,43 @@ import { Form } from "../components/forms/Form.jsx"
 import { api } from "../utils/api.js";
 import { useState } from "react";
 import { validateRegister } from "../utils/validators.js";
+import { useNavigate } from "react-router-dom";
+
+const loginLink = () => {
+  return (
+    <p className="text-center mt-6 text-sm text-accent-content opacity-70">
+      Already have an account?{" "}
+      <a href="/login" className="link link-primary font-medium">
+        Log in
+      </a>
+    </p>
+  )
+}
 
 export default function Register() {
   const [error, setError] = useState(null)
   const initialData = {
-    email: 'htkael@gmail.com',
-    username: 'hunter.dev',
-    password: 'Password!123',
-    passwordConf: 'Password!123',
+    email: '',
+    username: '',
+    password: '',
+    passwordConf: '',
     firstName: '',
     lastName: ''
   };
+
+  const navigate = useNavigate()
 
   const handleSubmit = async (formData) => {
     const registerTest = validateRegister(formData)
     if (registerTest) {
       setError(registerTest)
     }
-    const response = await api("POST", "/no-auth/create-user", { user: formData })
+    const response = await api("POST", "/no-auth/register", { user: formData })
     if (response?.error) {
       setError(response.error)
+    }
+    if (response?.success) {
+      navigate("/login")
     }
   };
 
@@ -39,7 +56,7 @@ export default function Register() {
           </p>
         </div>
 
-        <Form formHeader={"Create Account"} initialData={initialData} onSubmit={handleSubmit} submitText='Begin Your Journey' registerForm={true} error={error}>
+        <Form formHeader={"Create Account"} initialData={initialData} onSubmit={handleSubmit} submitText='Begin Your Journey' link={loginLink} error={error}>
           <EmailInput label="Email *" name="email" required />
           <TextInput label="Username *" name="username" required />
           <TextInput label="First Name" name="firstName" />
