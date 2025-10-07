@@ -13,26 +13,6 @@ import { Header } from "../components/shared/Header"
 export const Dashboard = () => {
   const { user } = useContext(AuthContext)
 
-  const stats = {
-    totalCategories: 5,
-    weeklyActivities: 12,
-    currentStreak: 7,
-    totalEntries: 156
-  }
-
-  const recentActivities = [
-    { id: 1, category: "Fitness", activity: "Morning Run", date: "2025-10-02", metric: "5km in 25min" },
-    { id: 2, category: "Learning", activity: "React Tutorial", date: "2025-10-01", metric: "2 hours" },
-    { id: 3, category: "Health", activity: "Meditation", date: "2025-10-01", metric: "15 minutes" }
-  ]
-
-  const categories = [
-    { name: "Fitness", color: "bg-primary", activities: 8, lastEntry: "Today" },
-    { name: "Learning", color: "bg-secondary", activities: 15, lastEntry: "Yesterday" },
-    { name: "Health", color: "bg-accent", activities: 6, lastEntry: "2 days ago" },
-    { name: "Career", color: "bg-info", activities: 12, lastEntry: "3 days ago" }
-  ]
-
   return (
     <div className="min-h-screen bg-base-200">
       {/* Header */}
