@@ -1,4 +1,4 @@
-import client from "../../pg-cli";
+import client from "../../pg-cli.js";
 
 export async function getDashStats(req, res) {
   const pg = await client.connect()
