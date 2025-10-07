@@ -11,7 +11,7 @@ import { StatCard } from "../components/shared/StatCard"
 import { Header } from "../components/shared/Header"
 
 export const Dashboard = () => {
-  const { user, handleLogout } = useContext(AuthContext)
+  const { user } = useContext(AuthContext)
 
   const stats = {
     totalCategories: 5,
@@ -40,7 +40,7 @@ export const Dashboard = () => {
       <div className="container mx-auto px-4 py-6">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-2">Welcome back, {user?.username}! 👋</h2>
+          <h2 className="text-3xl font-bold mb-2">Welcome back, {user?.firstName || user.username}! 👋</h2>
           <p className="text-base-content/70">Keep pushing your limits and tracking your progress.</p>
         </div>
 
