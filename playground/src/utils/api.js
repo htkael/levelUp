@@ -1,5 +1,5 @@
 
-export const api = async (method, route, body) => {
+export const api = async (route, body) => {
   try {
     console.log("ROUTE AND BODY", { route, body })
     if (!body) body = {}
@@ -13,7 +13,7 @@ export const api = async (method, route, body) => {
     }
 
     const res = await fetch(url, {
-      method: method,
+      method: "POST",
       body: body,
       credentials: "include",
       headers

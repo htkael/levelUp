@@ -1,10 +1,11 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import './App.css'
 import Register from './pages/Register'
 import { Login } from './pages/Login'
 import { AuthProvider } from './contexts/AuthContext'
 import { AuthenticatedPageWrapper } from "./wrappers/AuthenticatedPage.jsx"
 import { Dashboard } from './pages/Dashboard'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 function App() {
   return (
@@ -18,12 +19,24 @@ function App() {
   )
 }
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000,
+      retry: 1,
+      refetchOnWindowFocus: true
+    }
+  }
+})
+
 const Root = () => {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </QueryClientProvider>
     </BrowserRouter>
   )
 }

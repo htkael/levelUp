@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
 
   const validateToken = async () => {
     try {
-      const res = await api("POST", "/auth/validate-token")
+      const res = await api("/auth/validate-token")
 
       if (res.success) {
         setIsAuthenticated(true)
@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }) => {
   }, [])
 
   const handleLogin = async (email, password) => {
-    const res = await api("POST", "/no-auth/login", { email, password })
+    const res = await api("/no-auth/login", { email, password })
     if (res?.success) {
       setIsAuthenticated(true)
       setUser(res.user)
@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   const handleLogout = async () => {
-    await api("POST", "/auth/logout")
+    await api("/auth/logout")
     setIsAuthenticated(false)
     setUser(null)
     deleteCookie("authToken")

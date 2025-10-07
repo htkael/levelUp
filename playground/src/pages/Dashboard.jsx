@@ -1,7 +1,6 @@
 import { useContext } from "react"
 import { AuthContext } from "../contexts/AuthContext"
 import {
-  PlusIcon,
   ChartBarIcon,
   TrophyIcon,
   FireIcon,
@@ -9,9 +8,91 @@ import {
 } from "@heroicons/react/24/outline"
 import { StatCard } from "../components/shared/StatCard"
 import { Header } from "../components/shared/Header"
+import { useDashboard } from "../hooks/useDashboard"
+import { QuickActions } from "../components/dashboard/QuickActions"
+import { RecentActivities } from "../components/dashboard/RecentActivities"
+import { Categories } from "../components/dashboard/Categories"
 
 export const Dashboard = () => {
   const { user } = useContext(AuthContext)
+  const { data, isLoading, isError, error } = useDashboard()
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-base-200">
+        <Header />
+        <div className="container mx-auto px-4 py-6">
+          <div className="mb-8">
+            <div className="skeleton h-8 w-64 mb-2"></div>
+            <div className="skeleton h-4 w-96"></div>
+          </div>
+
+          {/* Loading skeleton for stats cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="card bg-base-100 shadow-sm">
+                <div className="card-body">
+                  <div className="skeleton h-4 w-20 mb-2"></div>
+                  <div className="skeleton h-8 w-16 mb-2"></div>
+                  <div className="skeleton h-3 w-32"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Loading skeleton for main content */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="card bg-base-100 shadow-sm">
+                <div className="card-body">
+                  <div className="skeleton h-6 w-32 mb-4"></div>
+                  <div className="space-y-3">
+                    {[...Array(3)].map((_, j) => (
+                      <div key={j} className="skeleton h-12 w-full"></div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Error state
+  if (isError) {
+    return (
+      <div className="min-h-screen bg-base-200">
+        <Header />
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex flex-col items-center justify-center min-h-[50vh]">
+            <div className="alert alert-error max-w-md">
+              <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <h3 className="font-bold">Error loading dashboard</h3>
+                <div className="text-xs">{error.message || 'Failed to load dashboard data'}</div>
+              </div>
+            </div>
+            <button
+              className="btn btn-primary mt-4"
+              onClick={() => window.location.reload()}
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Safe access to data with defaults
+  const stats = data?.stats || {}
+  const recentActivities = data?.recentActivities || []
+  const categories = data?.categories || []
 
   return (
     <div className="min-h-screen bg-base-200">
@@ -33,75 +114,13 @@ export const Dashboard = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Quick Actions */}
-          <div className="card bg-base-100 shadow-sm">
-            <div className="card-body">
-              <h3 className="card-title text-lg mb-4">Quick Actions</h3>
-              <div className="grid grid-cols-2 gap-3">
-                <button className="btn btn-primary btn-sm">
-                  <PlusIcon className="w-4 h-4 mr-1" />
-                  Add Entry
-                </button>
-                <button className="btn btn-secondary btn-sm">
-                  <PlusIcon className="w-4 h-4 mr-1" />
-                  New Activity
-                </button>
-                <button className="btn btn-accent btn-sm">
-                  <PlusIcon className="w-4 h-4 mr-1" />
-                  New Category
-                </button>
-                <button className="btn btn-outline btn-sm">
-                  <ChartBarIcon className="w-4 h-4 mr-1" />
-                  View Reports
-                </button>
-              </div>
-            </div>
-          </div>
+          <QuickActions />
 
           {/* Recent Activity */}
-          <div className="card bg-base-100 shadow-sm">
-            <div className="card-body">
-              <h3 className="card-title text-lg mb-4">Recent Activity</h3>
-              <div className="space-y-3">
-                {recentActivities.map(activity => (
-                  <div key={activity.id} className="flex items-center justify-between p-2 hover:bg-base-200 rounded">
-                    <div>
-                      <div className="font-medium">{activity.activity}</div>
-                      <div className="text-sm text-base-content/70">
-                        {activity.category} • {activity.metric}
-                      </div>
-                    </div>
-                    <div className="text-xs text-base-content/50">
-                      {activity.date === "2025-10-02" ? "Today" : activity.date}
-                    </div>
-                  </div>
-                ))}
-                <button className="btn btn-ghost btn-sm w-full">View All</button>
-              </div>
-            </div>
-          </div>
+          <RecentActivities recentActivities={recentActivities} />
 
           {/* Categories Overview */}
-          <div className="card bg-base-100 shadow-sm">
-            <div className="card-body">
-              <h3 className="card-title text-lg mb-4">Categories</h3>
-              <div className="space-y-3">
-                {categories.map(category => (
-                  <div key={category.name} className="flex items-center justify-between p-2 hover:bg-base-200 rounded cursor-pointer">
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-3 h-3 rounded-full ${category.color}`}></div>
-                      <div>
-                        <div className="font-medium">{category.name}</div>
-                        <div className="text-xs text-base-content/70">{category.activities} activities</div>
-                      </div>
-                    </div>
-                    <div className="text-xs text-base-content/50">{category.lastEntry}</div>
-                  </div>
-                ))}
-                <button className="btn btn-ghost btn-sm w-full">Manage Categories</button>
-              </div>
-            </div>
-          </div>
+          <Categories categories={categories} />
         </div>
 
         {/* Progress Chart Placeholder */}

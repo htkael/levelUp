@@ -34,7 +34,7 @@ export default function Register() {
     if (registerTest) {
       setError(registerTest)
     }
-    const response = await api("POST", "/no-auth/register", { user: formData })
+    const response = await api("/no-auth/register", { user: formData })
     if (response?.error) {
       setError(response.error)
     }
