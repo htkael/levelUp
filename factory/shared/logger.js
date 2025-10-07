@@ -20,7 +20,7 @@ export function DefaultLoggerOptions() {
     logttl: 1000 * 10,
     fileLoggingLevel: LogLevels.INFO,
     filettl: 1000 * 60 * 60 * 12,
-    basePath: "./logs",
+    basePath: "./logs/",
     baseName: "levelUp",
     baseExt: ".log"
   }
