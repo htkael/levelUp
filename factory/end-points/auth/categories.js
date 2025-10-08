@@ -86,7 +86,7 @@ export async function updateCategory(req, res) {
   }
 }
 
-export async function DeleteCategory(req, res) {
+export async function deleteCategory(req, res) {
   try {
     const user = res?.locals?.user
 
