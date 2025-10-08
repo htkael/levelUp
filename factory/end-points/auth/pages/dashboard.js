@@ -1,5 +1,5 @@
-import client from "../../pg-cli.js";
-import { Logger } from "../../shared/logger.js";
+import client from "../../../pg-cli.js";
+import { Logger } from "../../../shared/logger.js";
 
 export async function getDashStats(req, res) {
   const pg = await client.connect()

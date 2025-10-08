@@ -3,7 +3,7 @@ import { Logger } from "../shared/logger.js"
 import { authorize } from "../middleware/authorize.js"
 import { tokenCheck, validateUser } from "../auth/auth-helpers.js"
 import { logout } from "../end-points/noAuth/login.js"
-import { getDashStats } from "../end-points/auth/dashboard.js"
+import { getDashStats } from "../end-points/auth/pages/dashboard.js"
 
 export const authRouter = express.Router()
 
