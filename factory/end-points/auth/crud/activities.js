@@ -88,11 +88,6 @@ export async function updateActivity(req, res) {
 
 export async function deleteActivity(req, res) {
   try {
-    const user = res?.locals?.user
-
-    if (!user) {
-      throw new Error("Invalid User")
-    }
 
     const { id } = req.body
 
@@ -106,5 +101,11 @@ export async function deleteActivity(req, res) {
   } catch (error) {
     Logger.error("Unable to delete activity", { error })
     return res.send({ success: false, error: error })
+  }
+}
+
+export async function toggleActivity(req, res) {
+  try {
+
   }
 }

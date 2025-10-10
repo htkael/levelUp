@@ -2,31 +2,6 @@ import { CreateAndLog, UpdateAndLog, DeleteAndLog, getGenericById } from "../../
 import pg from "../../../pg-cli.js";
 import format from "pg-format";
 
-//model ProgressEntry {
-//  id             Int              @id @default(autoincrement())
-//  createdAt      DateTime         @default(now())
-//  updatedAt      DateTime         @updatedAt
-//  entryDate      DateTime         @db.Date
-//  notes          String?
-//  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-//  userId         Int
-//  activity       Activity         @relation(fields: [activityId], references: [id], onDelete: Cascade)
-//  activityId     Int
-//  ProgressMetric ProgressMetric[]
-//}
-
-//model ProgressMetric {
-//  id        Int            @id @default(autoincrement())
-//  createdAt DateTime       @default(now())
-//  value     Decimal        @db.Decimal(10, 2)
-//  metric    ActivityMetric @relation(fields: [metricId], references: [id], onDelete: Cascade)
-//  metricId  Int
-//  entry     ProgressEntry  @relation(fields: [entryId], references: [id], onDelete: Cascade)
-//  entryId   Int
-//
-//  @@unique([entryId, metricId])
-//}
-
 export async function createProgressEntry(req, res) {
   const client = await pg.connect()
 

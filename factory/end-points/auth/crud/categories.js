@@ -68,6 +68,10 @@ export async function updateCategory(req, res) {
       throw new Error("Original category not found")
     }
 
+    if (original?.userId && !(original.userId === user.id)) {
+      throw new Error("Only the owner of the category can edit the category")
+    }
+
     const newCategory = {
       ...category,
       updatedAt: new Date()

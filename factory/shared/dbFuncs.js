@@ -121,3 +121,13 @@ export const getGenericById = async (tablename, itemId, client = pg) => {
     return undefined
   }
 }
+
+export const getUserGroupRole = async (user, groupId, client = pg) => {
+  try {
+    const userGroup = (await client.query(`
+      SELECT role FROM "UserGroup"
+      WHERE "userId" = $1
+      AND "groupId" = $2
+    `, [user.id, groupId])).rows
+  }
+}
