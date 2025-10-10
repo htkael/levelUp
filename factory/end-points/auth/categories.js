@@ -1,6 +1,7 @@
 import { CreateAndLog, DeleteAndLog, getGenericById, getUserGroupRole, UpdateAndLog } from "../../shared/dbFuncs.js"
 import { Logger } from "../../shared/logger.js"
 import pg from "../../pg-cli.js"
+import { calculateStreak } from "../../shared/utils.js"
 
 export async function getCategoryBasic(req, res) {
   try {
@@ -72,22 +73,18 @@ export async function listCategories(req, res) {
 }
 
 export async function getCategoryStats(req, res) {
-  const client = await pg.connect()
-
   try {
     const user = res?.locals?.user
-
     if (!user) {
       throw new Error("Invalid user")
     }
-
     const { id } = req.body
 
     if (!id) {
       throw new Error("Category id required")
     }
 
-    const [overviewResult, mostEntries, lastLoggedEntry, timeBasedResult, entryDatesResult, otherStatsResult] = await Promise.all([
+    const [overviewResult, mostEntries, lastLoggedEntry, activeAndInactiveCount, weeklyEntries, monthlyEntries, entryDatesResult] = await Promise.all([
       pg.query(`
         SELECT
           COUNT(DISTINCT a.id) as "totalActivities",
@@ -125,12 +122,69 @@ export async function getCategoryStats(req, res) {
         GROUP BY a.id, a.name
         ORDER BY "lastEntry" DESC
         LIMIT 1
+      `, [id]),
+
+      pg.query(`
+        SELECT
+          COUNT(*) FILTER (WHERE a."isActive" = true) as "activeCount",
+          COUNT(*) FILTER (WHERE a."isActive" = false) as "inactiveCount"
+        FROM "Activity" a
+        WHERE a."categoryId" = $1
+      `, [id]),
+
+      pg.query(`
+        SELECT
+          COUNT(pe.id) as "weeklyEntries"
+        FROM "Activity" a
+        LEFT JOIN "ProgressEntry" pe ON pe."activityId" = a.id
+          AND pe."entryDate" >= DATE_TRUNC('week', CURRENT_DATE)
+        WHERE a."categoryId" = $1
+      `, [id]),
+
+      pg.query(`
+        SELECT
+          COUNT(pe.id) as "monthlyEntries"
+        FROM "Activity" a
+        LEFT JOIN "ProgressEntry" pe ON pe."activityId" = a.id
+          AND pe."entryDate" >= DATE_TRUNC('month', CURRENT_DATE)
+        WHERE a."categoryId" = $1
+      `, [id]),
+
+      pg.query(`
+        SELECT DISTINCT pe."entryDate"::date as "entry_date"
+        FROM "Activity" a
+        LEFT JOIN "ProgressEntry" pe on pe."activityId" = a.id
+        WHERE a."categoryId" = $1
+        ORDER BY "entry_date" DESC
       `, [id])
     ])
 
+    const totalEntries = overviewResult.rows[0].totalEntries
+    const firstEntry = overviewResult.rows[0].firstEntry
+    const daysSinceFirst = Math.floor((new Date() - new Date(firstEntry)) / (1000 * 60 * 60 * 24))
+    const totalWeeks = Math.ceil(daysSinceFirst / 7) || 1
+    const averagePerWeek = (totalEntries / totalWeeks).toFixed(1)
+    const streak = calculateStreak(entryDatesResult.rows)
+    const totalDaysLogged = entryDatesResult.rows.length
+    const percentageLogged = ((totalDaysLogged / daysSinceFirst) * 100).toFixed(1)
 
+    return res.send({
+      success: true,
+      data: {
+        overview: overviewResult.rows[0],
+        mostTrackedActivity: mostEntries.rows[0],
+        lastLoggedActivity: lastLoggedEntry.rows[0],
+        activityCounts: activeAndInactiveCount.rows[0],
+        weeklyEntries: weeklyEntries.rows[0].weeklyEntries,
+        monthlyEntries: monthlyEntries.rows[0].monthlyEntries,
+        averagePerWeek: parseFloat(averagePerWeek),
+        streak,
+        totalDaysLogged,
+        engagementRate: parseFloat(percentageLogged)
+      }
+    })
   } catch (error) {
-    Logger.error("Error getting stats for category", { categoryId: id, error: error.message })
+    Logger.error("Error getting stats for category", { categoryId: req.params?.id, error: error.message })
     return res.send({ success: false, error: error.message })
   }
 }
