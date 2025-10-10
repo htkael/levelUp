@@ -4,10 +4,10 @@ import { authorize } from "../middleware/authorize.js"
 import { tokenCheck, validateUser } from "../auth/auth-helpers.js"
 import { logout } from "../end-points/noAuth/login.js"
 import { getDashStats } from "../end-points/auth/pages/dashboard.js"
-import { createCategory, deleteCategory, updateCategory } from "../end-points/auth/crud/categories.js"
-import { createActivity, deleteActivity, updateActivity } from "../end-points/auth/crud/activities.js"
-import { createActivityMetric, deleteActivityMetric, updateActivityMetric } from "../end-points/auth/crud/activityMetrics.js"
-import { createProgressEntry, deleteProgressEntry, updateProgressEntry } from "../end-points/auth/crud/progressEntries.js"
+import { createCategory, deleteCategory, updateCategory } from "../end-points/auth/categories.js"
+import { createActivity, deleteActivity, updateActivity } from "../end-points/auth/activities.js"
+import { createActivityMetric, deleteActivityMetric, updateActivityMetric } from "../end-points/auth/activityMetrics.js"
+import { createProgressEntry, deleteProgressEntry, updateProgressEntry } from "../end-points/auth/progressEntries.js"
 
 export const authRouter = express.Router()
 

@@ -1,5 +1,5 @@
-import { CreateAndLog, UpdateAndLog, DeleteAndLog, getGenericById } from "../../../shared/dbFuncs.js";
-import pg from "../../../pg-cli.js";
+import { CreateAndLog, UpdateAndLog, DeleteAndLog, getGenericById } from "../../shared/dbFuncs.js";
+import pg from "../../pg-cli.js";
 
 export async function createActivityMetric(req, res) {
   try {

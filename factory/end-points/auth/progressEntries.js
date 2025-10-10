@@ -1,5 +1,5 @@
-import { CreateAndLog, UpdateAndLog, DeleteAndLog, getGenericById } from "../../../shared/dbFuncs.js";
-import pg from "../../../pg-cli.js";
+import { CreateAndLog, UpdateAndLog, DeleteAndLog, getGenericById } from "../../shared/dbFuncs.js";
+import pg from "../../pg-cli.js";
 import format from "pg-format";
 
 export async function createProgressEntry(req, res) {

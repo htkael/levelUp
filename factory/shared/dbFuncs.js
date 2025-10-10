@@ -129,5 +129,20 @@ export const getUserGroupRole = async (user, groupId, client = pg) => {
       WHERE "userId" = $1
       AND "groupId" = $2
     `, [user.id, groupId])).rows
+
+    if (userGroup?.length < 1) {
+      throw new Error("User does not belong to group")
+    }
+
+    let role = userGroup[0].role
+
+    if (!role) {
+      throw new Error("Role not found for user")
+    }
+
+    return role
+  } catch (error) {
+    Logger.error("Get user role failed", { error: error.message })
+    return undefined
   }
 }
