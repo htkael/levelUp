@@ -108,7 +108,7 @@ export const DeleteAndLog = async (tablename, itemId, client = pg) => {
   }
 }
 
-export const getGenericById = async (tablename, itemId) => {
+export const getGenericById = async (tablename, itemId, client = pg) => {
   try {
     const item = (await client.query(`
       SELECT * FROM ${tablename}

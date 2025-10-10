@@ -95,6 +95,7 @@ model Activity {
 model ActivityMetric {
   id             Int              @id @default(autoincrement())
   createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
   metricName     String           @db.VarChar(120)
   metricType     String           @db.VarChar(20)
   unit           String?          @db.VarChar(50)
