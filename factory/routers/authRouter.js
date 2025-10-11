@@ -4,7 +4,7 @@ import { authorize } from "../middleware/authorize.js"
 import { tokenCheck, validateUser } from "../auth/auth-helpers.js"
 import { logout } from "../end-points/noAuth/login.js"
 import { getDashStats } from "../end-points/auth/pages/dashboard.js"
-import { createCategory, deleteCategory, updateCategory } from "../end-points/auth/categories.js"
+import { createCategory, deleteCategory, getCategoryBasic, getCategoryStats, listCategories, updateCategory } from "../end-points/auth/categories.js"
 import { createActivity, deleteActivity, updateActivity } from "../end-points/auth/activities.js"
 import { createActivityMetric, deleteActivityMetric, updateActivityMetric } from "../end-points/auth/activityMetrics.js"
 import { createProgressEntry, deleteProgressEntry, updateProgressEntry } from "../end-points/auth/progressEntries.js"
@@ -22,6 +22,9 @@ authRouter.post("/logout", logout)
 
 authRouter.post("/dashboard", getDashStats)
 
+authRouter.post("/category/get", getCategoryBasic)
+authRouter.post("/category/list", listCategories)
+authRouter.post("/category/stats", getCategoryStats)
 authRouter.post("/category/create", createCategory)
 authRouter.post("/category/update", updateCategory)
 authRouter.post("/category/delete", deleteCategory)

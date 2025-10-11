@@ -136,7 +136,7 @@ model Goal {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   targetValue  Decimal        @db.Decimal(10, 2)
-  targetPeriod String         @db.VarChar(20)
+  targetPeriod TargetPeriod
   startDate    DateTime       @db.Date
   endDate      DateTime       @db.Date
   isActive     Boolean        @default(true)
@@ -161,4 +161,13 @@ enum GroupRoles {
   ADMIN
   MODERATOR
   MEMBER
+}
+
+enum TargetPeriod {
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+  TOTAL
 }
