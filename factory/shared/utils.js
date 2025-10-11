@@ -35,6 +35,32 @@ export function calculateStreak(dateRows) {
   return streak
 }
 
+export function calculateLongestStreak(dateRows) {
+  if (dateRows.length === 0) return 0
+
+  const entryDates = dateRows.map(row => {
+    const date = new Date(row.entry_date)
+    date.setHours(0, 0, 0, 0)
+    return date.getTime()
+  })
+
+  let longestStreak = 1
+  let currentStreak = 1
+
+  for (let i = 1; i < entryDates.length; i++) {
+    const expectedPrevious = entryDates[i - 1] - (24 * 60 * 60 * 1000)
+
+    if (entryDates[i] === expectedPrevious) {
+      currentStreak++
+    } else {
+      longestStreak = Math.max(longestStreak, currentStreak)
+      currentStreak = 1
+    }
+  }
+
+  return Math.max(longestStreak, currentStreak)
+}
+
 export function formatRelativeDate(date) {
   const today = new Date()
   const entryDate = new Date(date)

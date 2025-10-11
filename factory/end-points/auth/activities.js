@@ -1,6 +1,7 @@
 import { CreateAndLog, UpdateAndLog, DeleteAndLog, getGenericById, getUserGroupRole } from "../../shared/dbFuncs.js";
 import pg from "../../pg-cli.js";
 import { Logger } from "../../shared/logger.js";
+import { calculateStreak, calculateLongestStreak } from "../../shared/utils.js";
 
 export async function getActivityBasic(req, res) {
   try {
@@ -90,7 +91,7 @@ export async function getActivityStats(req, res) {
       throw new Error("Activity id required")
     }
 
-    const [overviewResult, metricStats, weeklyEntries, monthlyEntries, entryDatesResult, comparisonResult, recentActivityResult, goalsResult] = await Promise.all([
+    const [overviewResult, metricStats, entryDatesResult, comparisonResult, recentActivityResult, goalsResult] = await Promise.all([
       pg.query(`
         SELECT
           COUNT(pe.id) as "totalEntries",
@@ -136,23 +137,6 @@ export async function getActivityStats(req, res) {
       `, [id]),
 
       pg.query(`
-        SELECT DISTINCT "entryDate"::date as "entry_date"
-        FROM "ProgressEntry"
-        WHERE "activityId" = $1
-        ORDER BY "entry_date" DESC
-      `, [id]),
-
-      pg.query(`
-        SELECT
-          COUNT(*) FILTER (WHERE "entryDate" >= DATE_TRUNC('week', CURRENT_DATE)) as "thisWeekEntries",
-          COUNT(*) FILTER (WHERE "entryDate" < DATE_TRUNC('week', CURRENT_DATE) AND "entryDate" >= DATE_TRUNC('week', CURRENT_DATE) - INTERVAL '7 days') as "lastWeekEntries",
-          COUNT(*) FILTER (WHERE "entryDate" >= DATE_TRUNC('month', CURRENT_DATE)) as "thisMonthEntries",
-          COUNT(*) FILTER (WHERE "entryDate" < DATE_TRUNC('month', CURRENT_DATE) AND "entryDate" >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '1 month') as "lastMonthEntries"
-        FROM "ProgressEntry"
-        WHERE "activityId" = $1
-      `, [id]),
-
-      pg.query(`
         SELECT
           pe.id,
           pe."entryDate",
@@ -164,7 +148,7 @@ export async function getActivityStats(req, res) {
               'metricType', am."metricType",
               'unit', am.unit
             )
-          ) as 'metrics'
+          ) as "metrics"
         FROM "ProgressEntry" pe
         LEFT JOIN "ProgressMetric" pm ON pm."entryId" = pe.id
         LEFT JOIN "ActivityMetric" am ON pm."metricId" = am.id
@@ -172,8 +156,99 @@ export async function getActivityStats(req, res) {
         GROUP BY pe.id, pe."entryDate", pe.notes
         ORDER BY pe."entryDate" DESC
         LIMIT 10
+      `, [id]),
+
+      pg.query(`
+        SELECT
+          g."targetValue",
+          g."targetPeriod",
+          g."startDate",
+          g."endDate",
+          g."isActive",
+          am."metricName",
+          am.unit,
+          (
+            SELECT COALESCE(SUM(pm.value), 0)
+            FROM "ProgressMetric" pm
+            JOIN "ProgressEntry" pe ON pm."entryId" = pe.id
+            WHERE pm."metricId" = g."metricId"
+            AND pe."activityId" = $1
+            AND pe."entryDate" >= g."startDate"
+            AND pe."entryDate" <= LEAST(g."endDate", CURRENT_DATE)
+          ) as "currentProgress",
+          CASE
+            WHEN g."targetValue" > 0 THEN
+              ((
+                SELECT COALESCE(SUM(pm.value), 0)
+                FROM "ProgressMetric" pm
+                JOIN "ProgressEntry" pe on pm."entryId" = pe.id
+                WHERE pm."metricId" = g."metricId"
+                AND pe."activityId" = $1
+                AND pe."entryDate" >= g."startDate"
+                AND pe."entryDate" <= LEAST(g."endDate", CURRENT_DATE)
+              ) / g."targetValue" * 100)
+            ELSE 0
+          END as "percentageComplete",
+          EXTRACT(DAYS FROM AGE(CURRENT_DATE, g."startDate")) as "daysElapsed",
+          GREATEST(0, EXTRACT(DAYS FROM AGE(g."endDate", CURRENT_DATE))) as "daysRemaining",
+          EXTRACT(DAYS FROM AGE(g."endDate", g."startDate)) as "totalDays",
+          (
+            SELECT MAX(pe."entryDate")
+            FROM "ProgressMetric" pm
+            JOIN "ProgressEntry" pe ON pm."entryId" = pe.id
+            WHERE pm."metricId" = g."metricId"
+            AND pe."activityId" = $1
+            AND pe."entryDate" >= g."startDate"
+            AND pe."entryDate" <= g."endDate"
+          ) as "lastEntryDate"
+        FROM "Goal" g
+        JOIN "ActivityMetric" am on g."metricId" = am.id
+        WHERE g."activityId" = $1
+        AND g."isActive" = true
+        ORDER BY g."endDate" ASC
       `, [id])
     ]);
+
+
+    const totalEntries = overviewResult.rows[0].totalEntries
+    const firstEntry = overviewResult.rows[0].firstEntry
+    const daysSinceFirst = Math.floor((new Date() - new Date(firstEntry)) / (1000 * 60 * 60 * 24))
+    const totalWeeks = Math.ceil(daysSinceFirst / 7) || 1
+    const averagePerWeek = parseFloat((totalEntries / totalWeeks).toFixed(1))
+    const currentStreak = calculateStreak(entryDatesResult.rows)
+    const longestStreak = calculateLongestStreak(entryDatesResult.rows)
+    const totalDaysLogged = entryDatesResult.rows.length
+    const engagementRate = parseFloat(((totalDaysLogged / daysSinceFirst) * 100).toFixed(1))
+
+    return res.send({
+      success: true,
+      data: {
+        overview: overviewResult.rows[0],
+        metrics: metricStats.rows,
+        timeBased: {
+          averagePerWeek,
+          thisWeekEntries: comparisonResult.rows[0].thisWeekEntries,
+          lastWeekEntries: comparisonResult.rows[0].lastWeekEntries,
+          thisMonthEntries: comparisonResult.rows[0].thisMonthEntries,
+          lastMonthEntries: comparisonResult.rows[0].lastMonthEntries,
+          weekOverWeek: comparisonResult.rows[0].thisWeekEntries - comparisonResult.rows[0].lastWeekEntries,
+          monthOverMonth: comparisonResult.rows[0].thisMonthEntries - comparisonResult.rows[0].lastMonthEntries
+        },
+        consistency: {
+          currentStreak,
+          longestStreak,
+          totalDaysLogged,
+          engagementRate,
+          daysSinceFirst
+        },
+        recentEntries: recentActivityResult.rows,
+        goals: goalsResult.rows
+      }
+    })
+
+  } catch (error) {
+    Logger.error("Error fetching activity statistics", { error: error.message })
+    return res.send({ success: false, error: error.message })
   }
 }
 
