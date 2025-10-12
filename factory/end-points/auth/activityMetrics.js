@@ -20,7 +20,8 @@ export async function createActivityMetric(req, res) {
         UPDATE "ActivityMetric"
         SET "isPrimary" = false
         WHERE "isPrimary" = true
-      `)
+        AND "activityId" = $1
+      `, [activityMetric.activityId])
     }
 
 
@@ -61,7 +62,8 @@ export async function updateActivityMetric(req, res) {
         UPDATE "ActivityMetric"
         SET "isPrimary" = false
         WHERE "isPrimary" = true
-      `)
+        AND "activityId" = $1
+      `, [activityMetric.activityId])
     }
 
     const original = await getGenericById("ActivityMetric", activityMetric.id)
@@ -83,7 +85,7 @@ export async function updateActivityMetric(req, res) {
 
     return res.send({ success: true, updated })
   } catch (error) {
-    Logger.error("Unable to update categoiry", { error: error.message })
+    Logger.error("Unable to update metric", { error: error.message })
     return res.send({ success: false, error: error })
   }
 }
@@ -107,6 +109,41 @@ export async function deleteActivityMetric(req, res) {
     return res.send({ success: true })
   } catch (error) {
     Logger.error("Unable to delete activityMetric", { error })
-    return res.send({ success: false, error: error })
+    return res.send({ success: false, error: error.message })
+  }
+}
+
+export async function makePrimaryMetric(req, res) {
+  try {
+    const user = res?.locals?.user
+
+    if (!user) {
+      throw new Error("Invalid user")
+    }
+
+    const { id } = req.body
+
+    if (!id) {
+      throw new Error("Metric id required")
+    }
+
+    await pg.query(`
+      UPDATE "ActivityMetric"
+      SET "isPrimary" = false
+      WHERE "isPrimary" = true
+      AND "activityId" = $1
+    `, [id])
+
+    await pg.query(`
+      UPDATE "ActivityMetric"
+      SET "isPrimary" = true
+      WHERE "activityId" = $1
+    `, [id])
+
+    return res.send({ success: true })
+
+  } catch (error) {
+    Logger.error("Unable to set as primary metric", { error: error.message })
+    return res.send({ success: false, error: error.message })
   }
 }
