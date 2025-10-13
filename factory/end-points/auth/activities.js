@@ -176,19 +176,6 @@ export async function getActivityStats(req, res) {
             AND pe."entryDate" >= g."startDate"
             AND pe."entryDate" <= LEAST(g."endDate", CURRENT_DATE)
           ) as "currentProgress",
-          CASE
-            WHEN g."targetValue" > 0 THEN
-              ((
-                SELECT COALESCE(SUM(pm.value), 0)
-                FROM "ProgressMetric" pm
-                JOIN "ProgressEntry" pe on pm."entryId" = pe.id
-                WHERE pm."metricId" = g."metricId"
-                AND pe."activityId" = $1
-                AND pe."entryDate" >= g."startDate"
-                AND pe."entryDate" <= LEAST(g."endDate", CURRENT_DATE)
-              ) / g."targetValue" * 100)
-            ELSE 0
-          END as "percentageComplete",
           EXTRACT(DAYS FROM AGE(CURRENT_DATE, g."startDate")) as "daysElapsed",
           GREATEST(0, EXTRACT(DAYS FROM AGE(g."endDate", CURRENT_DATE))) as "daysRemaining",
           EXTRACT(DAYS FROM AGE(g."endDate", g."startDate)) as "totalDays",
@@ -220,6 +207,13 @@ export async function getActivityStats(req, res) {
     const totalDaysLogged = entryDatesResult.rows.length
     const engagementRate = parseFloat(((totalDaysLogged / daysSinceFirst) * 100).toFixed(1))
 
+    const goals = goalsResult.rows.map(goal => ({
+      ...goal,
+      percentageComplete: goal.targetValue > 0
+        ? (goal.currentProgress / goal.targetValue * 100)
+        : 0
+    }))
+
     return res.send({
       success: true,
       data: {
@@ -242,7 +236,7 @@ export async function getActivityStats(req, res) {
           daysSinceFirst
         },
         recentEntries: recentActivityResult.rows,
-        goals: goalsResult.rows
+        goals: goals
       }
     })
 
@@ -266,16 +260,10 @@ export async function createActivity(req, res) {
       throw new Error("Activity requires a name and a category")
     }
 
-    if (!(activity?.groupId || activity?.userId)) {
-      throw new Error("A group id or user id is required to create a activity")
-    }
-
-    if (activity?.userId && activity?.groupId) {
-      throw new Error("A activity can only belong to a group OR a user")
-    }
-
     const newActivity = {
       ...activity,
+      userId: activity?.groupId ? null : user.id,
+      groupId: activity?.groupId ? activity.groupId : null,
       updatedAt: new Date()
     }
 
@@ -314,6 +302,9 @@ export async function updateActivity(req, res) {
 
     if (original?.groupId) {
       const role = await getUserGroupRole(user, original.groupId)
+      if (role.error) {
+        throw new Error(role.error)
+      }
       if (!(role === 'ADMIN')) {
         throw new Error("Only an admin can edit the activity")
       }
@@ -362,6 +353,9 @@ export async function deleteActivity(req, res) {
 
     if (original?.groupId) {
       const role = await getUserGroupRole(user, original.groupId)
+      if (role.error) {
+        throw new Error(role.error)
+      }
       if (!(role === 'ADMIN')) {
         throw new Error("Only an admin can edit the activity")
       }
@@ -402,12 +396,15 @@ export async function toggleActivity(req, res) {
 
     if (original?.groupId) {
       const role = await getUserGroupRole(user, original.groupId)
+      if (role.error) {
+        throw new Error(role.error)
+      }
       if (!(role === 'ADMIN')) {
         throw new Error("Only an admin can edit the activity")
       }
     }
 
-    const newStatus = !original.status
+    const newStatus = !original.isActive
 
     const newActivity = {
       ...original,
@@ -423,7 +420,7 @@ export async function toggleActivity(req, res) {
 
     return res.send({ success: true, updated })
   } catch (error) {
-    Logger.error("Unable to toggle activity status", { error })
+    Logger.error("Unable to toggle activity status", { error: error.message })
     return res.send({ success: false, error: error.message })
   }
 }

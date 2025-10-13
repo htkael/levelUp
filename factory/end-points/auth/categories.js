@@ -203,16 +203,10 @@ export async function createCategory(req, res) {
       throw new Error("Category name required")
     }
 
-    if (!(category?.groupId || category?.userId)) {
-      throw new Error("A group id or user id is required to create a category")
-    }
-
-    if (category?.userId && category?.groupId) {
-      throw new Error("A category can only belong to a group OR a user")
-    }
-
     const newCategory = {
       ...category,
+      userId: category?.groupId ? null : user.id,
+      groupId: category?.groupId ? category.groupId : null,
       updatedAt: new Date()
     }
 
@@ -251,6 +245,9 @@ export async function updateCategory(req, res) {
 
     if (original?.groupId) {
       const role = await getUserGroupRole(user, original.groupId)
+      if (role.error) {
+        throw new Error(role.error)
+      }
       if (role !== "ADMIN") {
         throw new Error("Only a group admin can edit the group")
       }
@@ -303,6 +300,9 @@ export async function deleteCategory(req, res) {
 
     if (original?.groupId) {
       const role = await getUserGroupRole(user, original.groupId)
+      if (role.error) {
+        throw new Error(role.error)
+      }
       if (role !== "ADMIN") {
         throw new Error("Only a group admin can delete  the group")
       }
