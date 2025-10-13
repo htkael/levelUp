@@ -1,5 +1,5 @@
-import { CreateAndLog, DeleteAndLog, getGenericById, getUserGroupRole, UpdateAndLog } from "../../shared/dbFuncs"
-import { Logger } from "../../shared/logger"
+import { CreateAndLog, DeleteAndLog, getGenericById, getUserGroupRole, UpdateAndLog } from "../../shared/dbFuncs.js"
+import { Logger } from "../../shared/logger.js"
 
 export async function listGoals(req, res) {
   try {

@@ -9,6 +9,7 @@ import { createActivity, deleteActivity, getActivityBasic, getActivityStats, lis
 import { createActivityMetric, deleteActivityMetric, makePrimaryMetric, updateActivityMetric } from "../end-points/auth/activityMetrics.js"
 import { createProgressEntry, deleteProgressEntry, getProgressEntry, listProgressEntries, listProgressEntryCalendar, updateProgressEntry } from "../end-points/auth/progressEntries.js"
 import { createGoal, deleteGoal, getGoal, listGoals, toggleGoal, updateGoal } from "../end-points/auth/goals.js"
+import { addMember, createGroup, deleteGroup, getGroup, listGroups, removeMember, updateGroup, updateRole } from "../end-points/auth/groups.js"
 
 export const authRouter = express.Router()
 
@@ -56,3 +57,12 @@ authRouter.post("/goal/create", createGoal)
 authRouter.post("/goal/update", updateGoal)
 authRouter.post("/goal/delete", deleteGoal)
 authRouter.post("/goal/toggle", toggleGoal)
+
+authRouter.post("/group/list", listGroups)
+authRouter.post("/group/get", getGroup)
+authRouter.post("/group/create", createGroup)
+authRouter.post("/group/update", updateGroup)
+authRouter.post("/group/delete", deleteGroup)
+authRouter.post("/group/add-member", addMember)
+authRouter.post("/group/change-role", updateRole)
+authRouter.post("/group/remove-member", removeMember)
