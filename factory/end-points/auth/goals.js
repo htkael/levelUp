@@ -368,7 +368,7 @@ export async function deleteGoal(req, res) {
   }
 }
 
-export async function toggleCategory(req, res) {
+export async function toggleGoal(req, res) {
   try {
     const user = res?.locals?.user
 
