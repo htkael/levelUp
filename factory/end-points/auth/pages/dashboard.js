@@ -148,8 +148,6 @@ export async function getDashStats(req, res) {
 }
 
 export async function getGroupDashStats(req, res) {
-  const pg = await client.connect()
-
   try {
     const user = res?.locals?.user
 
@@ -164,14 +162,24 @@ export async function getGroupDashStats(req, res) {
       throw new Error("User does not belong to group")
     }
 
-    const [statsResult, recentActivitiesResult, categoriesResult, entryDatesResult] = await Promise.all([
+    const [statsResult, recentActivitiesResult, categoriesResult, entryDatesResult, goalsResult, leaderboardResult] = await Promise.all([
       pg.query(`
         SELECT
-          (SELECT COUNT(*) FROM "Category" WHERE "userId" = $1) as "totalCategories",
-          (SELECT COUNT(*) FROM "ProgressEntry" WHERE "userId" = $1
-          AND "entryDate" >= DATE_TRUNC('week', CURRENT_DATE)) as "weeklyActivities",
-          (SELECT COUNT(*) FROM "ProgressEntry" WHERE "userId" = $1) as "totalEntries"
-      `, [user.id]),
+          (SELECT COUNT(*) FROM "Category" WHERE "groupId" = $1) as "totalCategories",
+          (
+            SELECT COUNT(pe.id)
+            FROM "ProgressEntry" pe
+            JOIN "Activity" a ON a.id = pe."activityId"
+            WHERE a."groupId" = $1
+            AND pe."entryDate" >= DATE_TRUNC('week', CURRENT_DATE)
+          ) as "weeklyActivities",
+          (
+            SELECT COUNT(pe.id)
+            FROM "ProgressEntry" pe
+            JOIN "Activity" a ON a.id = pe."activityId"
+            WHERE a."groupId" = $1
+          ) as "totalEntries"
+      `, [groupId]),
 
       pg.query(`
         SELECT
@@ -179,20 +187,23 @@ export async function getGroupDashStats(req, res) {
           pe."entryDate" as date,
           a.name as activity,
           c.name as category,
+          u.id as "userId",
+          u.username,
           STRING_AGG(
             CONCAT(am."metricName", ': ', pm.value, ' ', COALESCE(am.unit, '')),
             ', '
           ) as metric
         FROM "ProgressEntry" pe
+        JOIN "User" u ON pe."userId" = u.id
         JOIN "Activity" a ON pe."activityId" = a.id
         JOIN "Category" c ON a."categoryId" = c.id
         LEFT JOIN "ProgressMetric" pm ON pm."entryId" = pe.id
         LEFT JOIN "ActivityMetric" am ON pm."metricId" = am.id
-        WHERE pe."userId" = $1
-        GROUP BY pe.id, pe."entryDate", a.name, c.name
+        WHERE a."groupId" = $1
+        GROUP BY pe.id, pe."entryDate", a.name, c.name, u.id, u.username
         ORDER BY pe."entryDate" DESC, pe."createdAt" DESC
         LIMIT 5
-      `, [user.id]),
+      `, [groupId]),
 
       pg.query(`
         SELECT
@@ -202,25 +213,92 @@ export async function getGroupDashStats(req, res) {
           COUNT(DISTINCT a.id) as activities,
           MAX(pe."entryDate") as "lastEntry"
           FROM "Category" c
-          LEFT JOIN "Activity" a ON a."categoryId" = c.id AND a."userId" = $1
-          LEFT JOIN "ProgressEntry" pe ON pe."activityId" = a.id AND pe."userId" = $1
-          WHERE c."userId" = $1
+          LEFT JOIN "Activity" a ON a."categoryId" = c.id AND a."groupId" = $1
+          LEFT JOIN "ProgressEntry" pe ON pe."activityId" = a.id
+          WHERE c."groupId" = $1
           GROUP BY c.id, c.name, c.color
           ORDER BY "lastEntry" DESC NULLS LAST
           LIMIT 5
-      `, [user.id]),
+      `, [groupId]),
 
       pg.query(`
-        SELECT DISTINCT "entryDate"::date as entry_date
-        FROM "ProgressEntry"
-        WHERE "userId" = $1
+        SELECT DISTINCT pe."entryDate"::date as entry_date
+        FROM "ProgressEntry" pe
+        JOIN "Activity" a ON a.id = pe."activityId"
+        WHERE a."groupId" = $1
         ORDER BY entry_date DESC
-      `, [user.id])
+      `, [groupId]),
+
+      pg.query(`
+        SELECT
+          g.*,
+          a.name as "activityName",
+          c.name as "categoryName",
+          am."metricName" as "metricName",
+          am."metricType" as "metricType",
+          am.unit as "metricUnit",
+            (
+              SELECT COALESCE(SUM(pm.value), 0)
+              FROM "ProgressMetric" pm
+              JOIN "ProgressEntry" pe ON pm."entryId" = pe.id
+              WHERE pm."metricId" = g."metricId"
+              AND pe."activityId" = g."activityId"
+              AND pe."entryDate" >= g."startDate"
+              AND pe."entryDate" <= LEAST(g."endDate", CURRENT_DATE)
+            ) as "currentProgress",
+            EXTRACT(DAYS FROM AGE(CURRENT_DATE, g."startDate")) as "daysElapsed",
+            GREATEST(0, EXTRACT(DAYS FROM AGE(g."endDate", CURRENT_DATE))) as "daysRemaining",
+            EXTRACT(DAYS FROM AGE(g."endDate", g."startDate")) as "totalDays",
+            (
+              SELECT MAX(pe."entryDate")
+              FROM "ProgressMetric" pm
+              JOIN "ProgressEntry" pe ON pm."entryId" = pe.id
+              WHERE pm."metricId" = g."metricId"
+              AND pe."activityId" = g."activityId"
+              AND pe."entryDate" >= g."startDate"
+              AND pe."entryDate" <= g."endDate"
+            ) as "lastEntryDate"
+        FROM "Goal" g
+        LEFT JOIN "Activity" a ON g."activityId" = a.id
+        LEFT JOIN "Category" c ON a."categoryId" = c.id
+        LEFT JOIN "ActivityMetric" am ON g."metricId" = am.id
+        WHERE g."groupId" = $1
+        AND g."isActive" = true
+        ORDER BY g."endDate" ASC
+        LIMIT 5
+      `, [groupId]),
+
+      pg.query(`
+        SELECT
+        u.id,
+        u.username,
+        COUNT(pe.id) as "entryCount"
+        FROM "ProgressEntry" pe
+        JOIN "User" u ON pe."userId" = u.id
+        JOIN "UserGroup" ug ON ug."userId" = u.id
+        JOIN "Activity" a ON a.id = pe."activityId"
+        WHERE ug."groupId" = $1
+        AND a."groupId" = $1
+        GROUP BY u.id, u.username
+        ORDER by COUNT(pe.id) DESC
+        LIMIT 5
+      `, [groupId])
 
     ])
 
     const currentStreak = calculateStreak(entryDatesResult.rows)
     const stats = statsResult.rows[0]
+    const goals = goalsResult.rows.map((goal) => ({
+      ...goal,
+      percentageComplete: goal.targetValue > 0
+        ? (parseFloat(goal.currentProgress) / parseFloat(goal.targetValue) * 100)
+        : 0,
+      daysElapsed: Math.floor(goal.daysElapsed),
+      daysRemaining: Math.floor(goal.daysRemaining),
+      totalDays: Math.floor(goal.totalDays)
+    }))
+    const leaderboard = leaderboardResult.rows
+
 
     return res.send({
       success: true,
@@ -234,6 +312,8 @@ export async function getGroupDashStats(req, res) {
         id: activity.id,
         category: activity.category,
         activity: activity.activity,
+        userId: activity.userId,
+        username: activity.username,
         date: activity.date.toISOString().split("T")[0],
         metric: activity.metric || "No metric"
 
@@ -243,13 +323,13 @@ export async function getGroupDashStats(req, res) {
         color: cat.color,
         activities: parseInt(cat.activities),
         lastEntry: cat.lastEntry ? formatRelativeDate(cat.lastEntry) : "No entries"
-      }))
+      })),
+      goals,
+      leaderboard
     })
 
   } catch (error) {
-    Logger.error("Dashboard query error", { error: error?.message || error })
-    return res.status(500).send({ success: false, error: "Failed to fetch dashboard data" })
-  } finally {
-    pg.release()
+    Logger.error("Group dashboard query error", { error: error?.message || error })
+    return res.status(500).send({ success: false, error: "Failed to fetch group dashboard data" })
   }
 }

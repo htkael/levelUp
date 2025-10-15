@@ -260,6 +260,12 @@ export async function createActivity(req, res) {
       throw new Error("Activity requires a name and a category")
     }
 
+    const originalCategory = await getGenericById("Category", activity.categoryId)
+
+    if (activity?.groupId && (activity.groupId !== originalCategory.groupId)) {
+      throw new Error("Category and activity group id must match")
+    }
+
     const newActivity = {
       ...activity,
       userId: activity?.groupId ? null : user.id,
