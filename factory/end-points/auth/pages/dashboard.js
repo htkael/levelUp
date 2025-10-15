@@ -153,6 +153,10 @@ export async function getGroupDashStats(req, res) {
 
     const { groupId } = req.body
 
+    if (!groupId) {
+      throw new Error("Group id required")
+    }
+
     const role = await getUserGroupRole(user, groupId)
 
     if (role?.error) {
@@ -163,7 +167,7 @@ export async function getGroupDashStats(req, res) {
     }
 
     const [statsResult, recentActivitiesResult, categoriesResult, entryDatesResult, goalsResult, leaderboardResult] = await Promise.all([
-      pg.query(`
+      client.query(`
         SELECT
           (SELECT COUNT(*) FROM "Category" WHERE "groupId" = $1) as "totalCategories",
           (
@@ -181,7 +185,7 @@ export async function getGroupDashStats(req, res) {
           ) as "totalEntries"
       `, [groupId]),
 
-      pg.query(`
+      client.query(`
         SELECT
           pe.id,
           pe."entryDate" as date,
@@ -205,7 +209,7 @@ export async function getGroupDashStats(req, res) {
         LIMIT 5
       `, [groupId]),
 
-      pg.query(`
+      client.query(`
         SELECT
           c.id,
           c.name,
@@ -221,7 +225,7 @@ export async function getGroupDashStats(req, res) {
           LIMIT 5
       `, [groupId]),
 
-      pg.query(`
+      client.query(`
         SELECT DISTINCT pe."entryDate"::date as entry_date
         FROM "ProgressEntry" pe
         JOIN "Activity" a ON a.id = pe."activityId"
@@ -229,7 +233,7 @@ export async function getGroupDashStats(req, res) {
         ORDER BY entry_date DESC
       `, [groupId]),
 
-      pg.query(`
+      client.query(`
         SELECT
           g.*,
           a.name as "activityName",
@@ -268,7 +272,7 @@ export async function getGroupDashStats(req, res) {
         LIMIT 5
       `, [groupId]),
 
-      pg.query(`
+      client.query(`
         SELECT
         u.id,
         u.username,

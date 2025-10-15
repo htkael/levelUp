@@ -3,13 +3,14 @@ import { Logger } from "../shared/logger.js"
 import { authorize } from "../middleware/authorize.js"
 import { tokenCheck, validateUser } from "../auth/auth-helpers.js"
 import { logout } from "../end-points/noAuth/login.js"
-import { getDashStats } from "../end-points/auth/pages/dashboard.js"
+import { getDashStats, getGroupDashStats } from "../end-points/auth/pages/dashboard.js"
 import { createCategory, deleteCategory, getCategoryBasic, getCategoryStats, listCategories, updateCategory } from "../end-points/auth/categories.js"
 import { createActivity, deleteActivity, getActivityBasic, getActivityStats, listActivities, toggleActivity, updateActivity } from "../end-points/auth/activities.js"
 import { createActivityMetric, deleteActivityMetric, makePrimaryMetric, updateActivityMetric } from "../end-points/auth/activityMetrics.js"
 import { createProgressEntry, deleteProgressEntry, getProgressEntry, listProgressEntries, listProgressEntryCalendar, updateProgressEntry } from "../end-points/auth/progressEntries.js"
 import { createGoal, deleteGoal, getGoal, listGoals, toggleGoal, updateGoal } from "../end-points/auth/goals.js"
 import { addMember, createGroup, deleteGroup, getGroup, listGroups, removeMember, updateGroup, updateRole } from "../end-points/auth/groups.js"
+import { getGroupLeaderboard } from "../end-points/auth/pages/leaderboard.js"
 
 export const authRouter = express.Router()
 
@@ -66,3 +67,5 @@ authRouter.post("/group/delete", deleteGroup)
 authRouter.post("/group/add-member", addMember)
 authRouter.post("/group/change-role", updateRole)
 authRouter.post("/group/remove-member", removeMember)
+authRouter.post("/group/leaderboard", getGroupLeaderboard)
+authRouter.post("/group/dashboard", getGroupDashStats)
