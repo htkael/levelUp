@@ -7,7 +7,6 @@ import {
   ArrowTrendingUpIcon
 } from "@heroicons/react/24/outline"
 import { StatCard } from "../components/shared/StatCard"
-import { Header } from "../components/shared/Header"
 import { useDashboard } from "../hooks/useDashboard"
 import { QuickActions } from "../components/dashboard/QuickActions"
 import { RecentActivities } from "../components/dashboard/RecentActivities"
@@ -21,7 +20,6 @@ export const Dashboard = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-base-200">
-        <Header />
         <div className="container mx-auto px-4 py-6">
           <div className="mb-8">
             <div className="skeleton h-8 w-64 mb-2"></div>
@@ -65,7 +63,6 @@ export const Dashboard = () => {
   if (isError) {
     return (
       <div className="min-h-screen bg-base-200">
-        <Header />
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col items-center justify-center min-h-[50vh]">
             <div className="alert alert-error max-w-md">
@@ -97,7 +94,6 @@ export const Dashboard = () => {
   return (
     <div className="min-h-screen bg-base-200">
       {/* Header */}
-      <Header />
       <div className="container mx-auto px-4 py-6">
         {/* Welcome Section */}
         <div className="mb-8">

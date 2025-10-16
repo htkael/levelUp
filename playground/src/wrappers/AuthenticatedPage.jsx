@@ -1,6 +1,8 @@
 import { useContext, useEffect } from "react"
 import { AuthContext } from "../contexts/AuthContext"
 import { Outlet, useNavigate } from "react-router-dom"
+import { Header } from "../components/layout/Header"
+import { Sidebar } from "../components/layout/Sidebar"
 
 const AuthenticatedPage = () => {
   const { user, handleLogout } = useContext(AuthContext)
@@ -22,12 +24,24 @@ const AuthenticatedPage = () => {
   }, [handleLogout])
 
   return (
-    <div className="min-h-screen flex">
-      <div className="min-w-screen">
-        <Outlet user={user} />
+    <div className="h-screen flex flex-col overflow-hidden">
+      {/* Fixed Header */}
+      <Header />
+
+      {/* Main Layout with Fixed Sidebar and Scrollable Content */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Fixed Sidebar */}
+        <Sidebar />
+
+        {/* Scrollable Main Content */}
+        <main className="flex-1 overflow-y-auto bg-base-100">
+          <div className="container min-w-full ">
+            <Outlet />
+          </div>
+        </main>
       </div>
     </div>
-  );
+  )
 }
 
 export const AuthenticatedPageWrapper = () => {

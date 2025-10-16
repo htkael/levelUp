@@ -1,17 +1,5 @@
-import { useState, createContext, useContext } from "react";
-
-const FormContxt = createContext({
-  formData: {},
-  handleChange: () => { },
-});
-
-export const useFormContext = () => {
-  const context = useContext(FormContxt);
-  if (!context) {
-    console.error("Form comps must be in a valid Form component.");
-  }
-  return context;
-};
+import { useState } from "react";
+import { FormProvider } from "../../contexts/FormContext.jsx"
 
 export const Form = ({
   formHeader,
@@ -71,9 +59,9 @@ export const Form = ({
           </div>
         )}
         <form onSubmit={handleSubmit} className="space-y-4 flex flex-col items-center">
-          <FormContxt.Provider value={contextValue}>
+          <FormProvider value={contextValue}>
             {children}
-          </FormContxt.Provider>
+          </FormProvider>
           <button
             type="submit"
             className="btn btn-primary w-full mt-6"

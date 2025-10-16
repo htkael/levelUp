@@ -1,8 +1,7 @@
-import { useState } from "react";
-import { useFormContext } from "./Form";
-import { EyeIcon } from "../../shared/icons";
+import { useState } from "react"
+import { useFormContext } from "../../contexts/FormContext"
+import { EyeIcon } from "../shared/icons"
 import { FaEyeSlash } from "react-icons/fa"
-
 
 export const FormInput = ({
   label,
@@ -46,7 +45,7 @@ export const FormInput = ({
           onChange={handleChange}
           {...props}
         >
-          <option value="" disabled selected>
+          <option value="" disabled>
             {label}
           </option>
           {options?.map((o, i) => (
@@ -56,7 +55,7 @@ export const FormInput = ({
           ))}
         </select>
       </div>
-    );
+    )
   }
 
   if (type === "textarea") {
@@ -77,7 +76,7 @@ export const FormInput = ({
         >
         </textarea>
       </div>
-    );
+    )
   }
 
   return (
@@ -98,7 +97,7 @@ export const FormInput = ({
         aria-hidden="true"
       />
 
-      {/*  Real input */}
+      {/* Real input */}
       <input
         id={name}
         className={styles.input}
@@ -112,9 +111,8 @@ export const FormInput = ({
         max={max}
         {...props}
       />
-
     </div>
-  );
+  )
 }
 
 export const TextInput = ({
@@ -131,8 +129,8 @@ export const TextInput = ({
       styles={styles}
       {...props}
     />
-  );
-};
+  )
+}
 
 export const DateInput = ({
   label,
@@ -140,7 +138,6 @@ export const DateInput = ({
   styles,
   ...props
 }) => {
-
   return (
     <FormInput
       label={label}
@@ -149,8 +146,8 @@ export const DateInput = ({
       styles={styles}
       {...props}
     />
-  );
-};
+  )
+}
 
 export const TimeInput = ({
   label,
@@ -168,8 +165,8 @@ export const TimeInput = ({
       onClick={(e) => e.target.showPicker()}
       {...props}
     />
-  );
-};
+  )
+}
 
 export const SelectInput = ({
   label,
@@ -179,18 +176,16 @@ export const SelectInput = ({
   ...props
 }) => {
   return (
-    <>
-      <FormInput
-        label={label}
-        name={name}
-        type="select"
-        options={options}
-        styles={styles}
-        {...props}
-      />
-    </>
-  );
-};
+    <FormInput
+      label={label}
+      name={name}
+      type="select"
+      options={options}
+      styles={styles}
+      {...props}
+    />
+  )
+}
 
 export const NumberInput = ({
   label,
@@ -210,8 +205,8 @@ export const NumberInput = ({
       max={max}
       {...props}
     />
-  );
-};
+  )
+}
 
 export const TextArea = ({
   label,
@@ -227,11 +222,12 @@ export const TextArea = ({
       styles={styles}
       {...props}
     />
-  );
-};
+  )
+}
 
 export const PasswordInput = ({ label, name, styles, ...props }) => {
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false)
+
   if (!styles) {
     styles = {
       wrapper: `form-control w-full`,
@@ -242,10 +238,10 @@ export const PasswordInput = ({ label, name, styles, ...props }) => {
   }
 
   const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
+    setShowPassword(!showPassword)
+  }
 
-  const inputType = showPassword ? "text" : "password";
+  const inputType = showPassword ? "text" : "password"
 
   const { formData, handleChange } = useFormContext()
   const value = formData[name] || ""
@@ -290,8 +286,8 @@ export const PasswordInput = ({ label, name, styles, ...props }) => {
         </button>
       </div>
     </div>
-  );
-};
+  )
+}
 
 export const EmailInput = ({
   label,
@@ -307,5 +303,30 @@ export const EmailInput = ({
       styles={styles}
       {...props}
     />
-  );
-};
+  )
+}
+
+export const ColorInput = ({
+  label,
+  name,
+  styles,
+  ...props
+}) => {
+  if (!styles) {
+    styles = {
+      wrapper: `form-control w-full`,
+      label: "label-text text-secondary",
+      input: "input input-bordered w-full h-12 bg-base-100",
+    }
+  }
+
+  return (
+    <FormInput
+      label={label}
+      name={name}
+      type="color"
+      styles={styles}
+      {...props}
+    />
+  )
+}

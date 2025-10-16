@@ -6,7 +6,6 @@ export const useDashboard = () => {
     queryKey: ['dashboard'],
     queryFn: async () => {
       const response = await api("/auth/dashboard")
-      console.log("response", response)
       if (response?.error) throw new Error(`Failed to fetch dashboard ${response.error}`)
       return response
     },
