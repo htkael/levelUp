@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useFormContext } from "../../contexts/FormContext"
-import { EyeIcon } from "../shared/icons"
+import { EyeIcon } from "../../shared/icons"
 import { FaEyeSlash } from "react-icons/fa"
 
 export const FormInput = ({
@@ -16,13 +16,10 @@ export const FormInput = ({
   if (!styles) {
     styles = {
       wrapper: `form-control w-full`,
-      label: "label-text text-secondary",
-      input:
-        "input input-ghost validator input-bordered w-full bg-base-100 text-base-content",
-      select:
-        "select w-full bg-base-100 text-base-content",
-      textarea:
-        "textarea",
+      label: "label-text",
+      input: "input input-bordered w-full bg-base-100 focus:outline-primary focus:outline-1",
+      select: "select select-bordered w-full bg-base-100 focus:outline-primary focus:outline-1",
+      textarea: "textarea textarea-bordered w-full bg-base-100 focus:outline-primary focus:outline-1",
     }
   }
 
@@ -73,8 +70,7 @@ export const FormInput = ({
           value={value}
           onChange={handleChange}
           {...props}
-        >
-        </textarea>
+        />
       </div>
     )
   }
@@ -231,8 +227,8 @@ export const PasswordInput = ({ label, name, styles, ...props }) => {
   if (!styles) {
     styles = {
       wrapper: `form-control w-full`,
-      label: "label-text text-secondary",
-      input: "input input-bordered w-full bg-base-100 text-base-content pr-12",
+      label: "label-text",
+      input: "input input-bordered w-full bg-base-100 text-base-content pr-12 focus:outline-primary focus:outline-2",
       inputWrapper: "relative"
     }
   }
@@ -315,8 +311,8 @@ export const ColorInput = ({
   if (!styles) {
     styles = {
       wrapper: `form-control w-full`,
-      label: "label-text text-secondary",
-      input: "input input-bordered w-full h-12 bg-base-100",
+      label: "label-text",
+      input: "input input-bordered w-full h-12 bg-base-100 cursor-pointer focus:outline-primary focus:outline-2",
     }
   }
 

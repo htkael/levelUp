@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"
 
 export const CategoryCard = ({ category }) => {
 
@@ -44,7 +45,7 @@ export const CategoryCard = ({ category }) => {
         <div className="flex gap-4 mt-4 text-sm">
           <div>
             <span className="text-base-content/60">Activities: </span>
-            <span className="font-semibold">{category.activityCount}</span>
+            <span className="font-semibold">{category.activities}</span>
           </div>
           {category.lastEntry && (
             <div>

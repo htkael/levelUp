@@ -3,14 +3,21 @@ import { ErrorAlert } from "../components/shared/errors/ErrorAlert.jsx"
 import { CategoryCard } from "../components/shared/CategoryCard"
 import { EmptyState } from "../components/shared/EmptyState.jsx"
 import { LoadingSkeleton } from "../components/shared/LoadingSkeleton.jsx"
+import { CreateCategory } from "../components/categories/CreateCategory.jsx"
+import { useState } from "react"
 
 export const Categories = () => {
+  const [isAddOpen, setIsAddOpen] = useState(false)
   const { data, isLoading, error, refetch } = useCategories()
   const categories = data?.categories || []
   const isEmpty = categories.length === 0
 
   const handleCreateCategory = () => {
-    console.log("Open create category modal")
+    setIsAddOpen(true)
+  }
+
+  const handleCloseCreate = () => {
+    setIsAddOpen(false)
   }
 
   return (
@@ -58,6 +65,11 @@ export const Categories = () => {
           ))}
         </div>
       )}
+
+      <CreateCategory
+        isOpen={isAddOpen}
+        onClose={handleCloseCreate}
+      />
     </div>
   )
 }

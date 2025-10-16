@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { FormProvider } from "../contexts/FormContext"
+import { FormProvider } from "../../contexts/FormContext"
 
 export const FormModal = ({
   isOpen,
@@ -54,9 +54,6 @@ export const FormModal = ({
   }
 
   const handleClose = () => {
-    if (!externalFormData) {
-      setFormData(initialData)
-    }
     onClose()
   }
 

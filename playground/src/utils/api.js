@@ -1,7 +1,6 @@
 
 export const api = async (route, body) => {
   try {
-    console.log("ROUTE AND BODY", { route, body })
     if (!body) body = {}
     let url = `${import.meta.env.VITE_API_URL}${route}`
     let headers = {}
@@ -19,7 +18,6 @@ export const api = async (route, body) => {
       headers
     })
     const data = await res.json()
-    console.log("res", data)
     return data
   } catch (error) {
     console.error("API Call Failed", { route, body, error })

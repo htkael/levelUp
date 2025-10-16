@@ -7,6 +7,9 @@ import { AuthenticatedPageWrapper } from "./wrappers/AuthenticatedPage.jsx"
 import { Dashboard } from './pages/Dashboard'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Categories } from './pages/Categories.jsx'
+import { ToastContainer } from 'react-toastify'
+import { ErrorBoundary } from 'react-error-boundary'
+import { ErrorBoundaryFallback } from "./components/shared/errors/ErrorBoundaryFallback.jsx"
 
 function App() {
   return (
@@ -36,7 +39,26 @@ const Root = () => {
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <App />
+          <ErrorBoundary
+            FallbackComponent={ErrorBoundaryFallback}
+            onReset={() => {
+              window.location.href = "/"
+            }}
+            onError={(error, errorInfo) => {
+              console.error("Error caught by error boundary", error, errorInfo)
+            }}
+          >
+            <ToastContainer
+              position='top-right'
+              autoClose={3000}
+              hideProgressBar={false}
+              newestOnTop
+              closeOnClick
+              pauseOnHover
+              theme='dark'
+            />
+            <App />
+          </ErrorBoundary>
         </AuthProvider>
       </QueryClientProvider>
     </BrowserRouter>
