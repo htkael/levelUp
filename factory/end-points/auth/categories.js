@@ -57,12 +57,15 @@ export async function listCategories(req, res) {
     }
 
     const categories = (await pg.query(`
-      SELECT c.name, c.description, c.color,
-      COUNT(DISTINCT a.id) as activities
+      SELECT c.id, c.name, c.description, c.color,
+      COUNT(DISTINCT a.id) as activities,
+      MAX(pe."entryDate") as "lastEntryDate"
       FROM "Category" c
       LEFT JOIN "Activity" a ON a."categoryId" = c.id AND a."${searchField}" = $1
+      LEFT JOIN "ProgressEntry" pe ON pe."activityId" = a.id
       WHERE c."${searchField}" = $1
       GROUP BY c.id, c.name, c.description, c.color
+      ORDER BY c."createdAt" DESC
     `, [searchId])).rows
 
     return res.send({ success: true, categories })
