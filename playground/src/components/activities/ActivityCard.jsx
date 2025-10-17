@@ -3,23 +3,25 @@ import { formatRelativeDate } from "../../utils/dateHelpers"
 import { useDeleteActivity } from "../../hooks/mutations/useDeleteActivity"
 import { useState } from "react"
 import { UpdateActivity } from "./UpdateActivity.jsx"
+import { useToggleActivity } from "../../hooks/mutations/useToggleActivity.js"
 
 export const ActivityCard = ({ activity }) => {
   const [updateOpen, setUpdateOpen] = useState(false)
   const { mutate: deleteActivity, isPending: isDeletePending } = useDeleteActivity()
+  const { mutate: toggleActivity, isPending: isTogglePending } = useToggleActivity()
 
   const isDeleting = isDeletePending
-  const isToggling = false
+  const isToggling = isTogglePending
+
+  const handleToggleActivity = () => {
+    toggleActivity(activity)
+  }
 
 
   const handleDeleteActivity = () => {
     if (window.confirm(`Are you sure you want to delete "${activity.name}"? This will also delete all progress entries for this activity.`)) {
-      deleteActivity(activity.id)
+      deleteActivity(activity)
     }
-  }
-
-  const handleToggleActive = () => {
-    console.log("toggle")
   }
 
   const handleCloseUpdate = () => {
@@ -74,7 +76,7 @@ export const ActivityCard = ({ activity }) => {
               </li>
               <li>
                 <button
-                  onClick={handleToggleActive}
+                  onClick={handleToggleActivity}
                   disabled={isToggling}
                 >
                   {isToggling ? "..." : activity.isActive ? "Hide Activity" : "Unhide Activity"}

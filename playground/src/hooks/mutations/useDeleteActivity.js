@@ -5,8 +5,8 @@ import { toast } from "react-toastify";
 export const useDeleteActivity = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (id) => {
-      const response = await api("/auth/activity/delete", { id })
+    mutationFn: async (activity) => {
+      const response = await api("/auth/activity/delete", { id: activity.id })
       if (!response.success) {
         throw new Error(response.error || "Failed to delete activity")
       }
@@ -14,9 +14,12 @@ export const useDeleteActivity = () => {
       return response
     },
 
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       toast.success("Activity deleted successfully!")
+      console.log("vars", variables)
       queryClient.invalidateQueries({ queryKey: ["activities"] })
+      queryClient.invalidateQueries({ queryKey: ["category", variables.categoryId] })
+      queryClient.invalidateQueries({ queryKey: ["categoryStats", variables.categoryId] })
     },
 
     onError: (error) => {

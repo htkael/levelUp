@@ -8,7 +8,6 @@ export const useUpdateCategory = () => {
   return useMutation({
     mutationFn: async (categoryData) => {
       const response = await api("/auth/category/update", { category: categoryData })
-      console.log("update response", response)
 
       if (!response.success) {
         throw new Error(response.error || "Error updating category")
@@ -22,6 +21,7 @@ export const useUpdateCategory = () => {
       queryclient.invalidateQueries({ queryKey: ["categories"] })
       queryclient.invalidateQueries({ queryKey: ["category", variables.id] })
       queryclient.invalidateQueries({ queryKey: ["categoryStats", variables.id] })
+      queryclient.invalidateQueries({ queryKey: ["dashboard"] })
     },
 
     onError: (error) => {

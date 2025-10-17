@@ -14,9 +14,11 @@ export const useCreateActivity = () => {
       return response.created
     },
 
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success("Activity created successfully!")
       queryClient.invalidateQueries({ queryKey: ["activities"] })
+      queryClient.invalidateQueries({ queryKey: ["category", data.categoryId] })
+      queryClient.invalidateQueries({ queryKey: ["categoryStats", data.categoryId] })
     },
 
     onError: (error) => {

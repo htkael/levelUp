@@ -3,8 +3,9 @@ import { TextInput, TextArea, SelectInput } from "../forms/FormInputs.jsx"
 import { useCreateActivity } from "../../hooks/mutations/useCreateActivity.js"
 import { useCategories } from "../../hooks/useCategories.js"
 
-export const CreateActivity = ({ isOpen, onClose }) => {
+export const CreateActivity = ({ isOpen, onClose, catId = null }) => {
   const initialData = {
+    categoryId: catId ? catId : null,
     name: "",
     description: "",
   }
@@ -38,13 +39,15 @@ export const CreateActivity = ({ isOpen, onClose }) => {
       error={error?.message}
       size="md"
     >
-      <SelectInput
-        name="categoryId"
-        label="Which category will this activity belong to"
-        options={isLoading ? { label: "Loading...", value: null } : categoryOptions}
-        required
-        disabled={isPending}
-      />
+      {!catId && (
+        <SelectInput
+          name="categoryId"
+          label="Which category will this activity belong to"
+          options={isLoading ? { label: "Loading...", value: null } : categoryOptions}
+          required
+          disabled={isPending}
+        />
+      )}
       <TextInput
         name="name"
         label="Activity Name"

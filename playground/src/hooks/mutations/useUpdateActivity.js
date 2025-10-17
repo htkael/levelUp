@@ -14,9 +14,13 @@ export const useUpdateActivity = () => {
       return response.updated
     },
 
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success("Activity updated successfully!")
       queryClient.invalidateQueries({ queryKey: ["activities"] })
+      queryClient.invalidateQueries({ queryKey: ["category", data.categoryId] })
+      queryClient.invalidateQueries({ queryKey: ["categoryStats", data.categoryId] })
+      queryClient.invalidateQueries({ queryKey: ["activity", data.id] })
+      queryClient.invalidateQueries({ queryKey: ["activityStats", data.id] })
     },
 
     onError: (error) => {

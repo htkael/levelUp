@@ -8,6 +8,7 @@ import { LoadingSpinner } from "../components/shared/LoadingSpinner.jsx"
 import { useDeleteCategory } from "../hooks/mutations/useDeleteCategory.js"
 import { useState } from "react"
 import { UpdateCategory } from "../components/categories/UpdateCategory.jsx"
+import { CreateActivity } from "../components/activities/CreateActivity.jsx"
 
 
 export const Category = () => {
@@ -16,6 +17,7 @@ export const Category = () => {
   const { data: stats, isLoading: isStatsLoading, isError: isStatsError, error: statsError } = useCategoryStats(id)
   const { mutate: deleteCategory, isPending } = useDeleteCategory()
   const [isUpdateOpen, setIsUpdateOpen] = useState(false)
+  const [addActivity, setAddActivity] = useState(false)
 
   const navigate = useNavigate()
 
@@ -35,6 +37,10 @@ export const Category = () => {
 
   const handleCloseUpdate = () => {
     setIsUpdateOpen(false)
+  }
+
+  const handleCloseAdd = () => {
+    setAddActivity(false)
   }
 
   const isLoading = isBasicLoading
@@ -237,7 +243,7 @@ export const Category = () => {
         <div className="card-body">
           <div className="flex justify-between items-center mb-4">
             <h3 className="card-title">Activities in {category.name}</h3>
-            <button className="btn btn-primary btn-sm">
+            <button className="btn btn-primary btn-sm" onClick={() => { setAddActivity(true) }}>
               <span className="text-lg">+</span>
               Add Activity
             </button>
@@ -295,6 +301,11 @@ export const Category = () => {
         category={category}
         onClose={handleCloseUpdate}
         isOpen={isUpdateOpen}
+      />
+      <CreateActivity
+        isOpen={addActivity}
+        onClose={handleCloseAdd}
+        catId={id}
       />
     </div>
   )

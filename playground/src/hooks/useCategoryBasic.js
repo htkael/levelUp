@@ -3,10 +3,9 @@ import { api } from "../utils/api";
 
 export const useCategoryBasic = (categoryId) => {
   return useQuery({
-    queryKey: ["category", categoryId],
+    queryKey: ["category", Number(categoryId)],
     queryFn: async () => {
       const response = await api("/auth/category/get", { id: categoryId })
-      console.log("response", response)
       if (!response.success) {
         throw new Error(response.error || "Error getting basic category info")
       }

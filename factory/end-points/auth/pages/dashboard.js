@@ -131,6 +131,7 @@ export async function getDashStats(req, res) {
 
       })),
       categories: categoriesResult.rows.map(cat => ({
+        id: cat.id,
         name: cat.name,
         color: cat.color,
         activities: parseInt(cat.activities),

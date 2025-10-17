@@ -127,6 +127,7 @@ export async function getActivityStats(req, res) {
         LEFT JOIN "ProgressEntry" pe ON pe."activityId" = a.id
         JOIN "Category" c ON c.id = a."categoryId"
         WHERE a.id = $1
+        GROUP BY a.id, a."isActive", c.name
       `, [id]),
       pg.query(`
         SELECT
@@ -202,7 +203,7 @@ export async function getActivityStats(req, res) {
           ) as "currentProgress",
           EXTRACT(DAYS FROM AGE(CURRENT_DATE, g."startDate")) as "daysElapsed",
           GREATEST(0, EXTRACT(DAYS FROM AGE(g."endDate", CURRENT_DATE))) as "daysRemaining",
-          EXTRACT(DAYS FROM AGE(g."endDate", g."startDate)) as "totalDays",
+          EXTRACT(DAYS FROM AGE(g."endDate", g."startDate")) as "totalDays",
           (
             SELECT MAX(pe."entryDate")
             FROM "ProgressMetric" pm
@@ -223,6 +224,39 @@ export async function getActivityStats(req, res) {
 
     const totalEntries = overviewResult.rows[0].totalEntries
     const firstEntry = overviewResult.rows[0].firstEntry
+
+    if (!firstEntry || totalEntries === 0) {
+      return res.send({
+        success: true,
+        data: {
+          overview: overviewResult.rows[0],
+          metrics: metricStats.rows,
+          timeBased: {
+            averagePerWeek: 0,
+            thisWeekEntries: parseInt(entryDatesResult.rows[0].count) || 0,
+            lastWeekEntries: 0,
+            thisMonthEntries: parseInt(comparisonResult.rows[0].count) || 0,
+            lastMonthEntries: 0,
+            weekOverWeek: 0,
+            monthOverMonth: 0
+          },
+          consistency: {
+            currentStreak: 0,
+            longestStreak: 0,
+            totalDaysLogged: 0,
+            engagementRate: 0,
+            daysSinceFirst: 0
+          },
+          recentEntries: [],
+          goals: goalsResult.rows.map(goal => ({
+            ...goal,
+            percentageComplete: goal.targetValue > 0
+              ? (goal.currentProgress / goal.targetValue * 100)
+              : 0
+          }))
+        }
+      })
+    }
     const daysSinceFirst = Math.floor((new Date() - new Date(firstEntry)) / (1000 * 60 * 60 * 24))
     const totalWeeks = Math.ceil(daysSinceFirst / 7) || 1
     const averagePerWeek = parseFloat((totalEntries / totalWeeks).toFixed(1))

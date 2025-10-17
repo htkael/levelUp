@@ -8,6 +8,7 @@ export const CategoryCard = ({ category }) => {
   const { mutate: deleteCategory, isPending } = useDeleteCategory()
   const [isUpdateOpen, setIsUpdateOpen] = useState(false)
 
+
   const handleDeleteCategory = () => {
     if (window.confirm(`Are you sure you want to delete "${category.name}"? This will also delete all activities and progress in this category.`)) {
       deleteCategory(category.id)
@@ -83,7 +84,7 @@ export const CategoryCard = ({ category }) => {
         <div className="flex gap-4 mt-4 text-sm">
           <div>
             <span className="text-base-content/60">Activities: </span>
-            <span className="font-semibold">{category.activityCount || 0}</span>
+            <span className="font-semibold">{category.activities || 0}</span>
           </div>
           <div>
             <span className="text-base-content/60">Last entry: </span>

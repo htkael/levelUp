@@ -37,7 +37,6 @@ export const Login = () => {
     setError(null)
     setLoading(true)
     let resp = await handleLogin(data.email, data.password)
-    console.log("resp", resp)
     if (resp?.error) {
       setError(resp.error)
       setLoading(false)

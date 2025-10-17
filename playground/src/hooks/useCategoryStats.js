@@ -3,10 +3,9 @@ import { api } from "../utils/api";
 
 export const useCategoryStats = (categoryId) => {
   return useQuery({
-    queryKey: ["categoryStats", categoryId],
+    queryKey: ["categoryStats", Number(categoryId)],
     queryFn: async () => {
       const response = await api("/auth/category/stats", { id: categoryId })
-      console.log("stats resp", response)
       if (!response.success) {
         throw new Error(response.error || "Error getting category stats")
       }

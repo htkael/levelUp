@@ -3,7 +3,7 @@ import { api } from "../utils/api.js"
 
 export const useCategories = (groupId) => {
   return useQuery({
-    queryKey: ['categories', groupId],
+    queryKey: ['categories', Number(groupId)],
     queryFn: async () => {
       const response = await api("/auth/category/list", { groupId })
       if (response?.error) throw new Error(`Failed to fetch categories ${response.error}`)
