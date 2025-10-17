@@ -115,7 +115,7 @@ export async function getActivityStats(req, res) {
       throw new Error("Activity id required")
     }
 
-    const [overviewResult, metricStats, entryDatesResult, comparisonResult, recentActivityResult, goalsResult] = await Promise.all([
+    const [overviewResult, metricStats, comparisonResult, entryDatesResult, recentActivityResult, goalsResult] = await Promise.all([
       pg.query(`
         SELECT
           COUNT(pe.id) as "totalEntries",
@@ -148,17 +148,22 @@ export async function getActivityStats(req, res) {
       `, [id]),
 
       pg.query(`
-        SELECT COUNT(*)
+        SELECT
+          COUNT(*) FILTER (WHERE "entryDate" >= DATE_TRUNC('week', CURRENT_DATE)) as "thisWeekEntries",
+          COUNT(*) FILTER (WHERE "entryDate" >= DATE_TRUNC('week', CURRENT_DATE - INTERVAL '1 week')
+                            AND "entryDate" < DATE_TRUNC('week', CURRENT_DATE)) as "lastWeekEntries",
+          COUNT(*) FILTER (WHERE "entryDate" >= DATE_TRUNC('month', CURRENT_DATE)) as "thisMonthEntries",
+          COUNT(*) FILTER (WHERE "entryDate" >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL '1 month')
+                            AND "entryDate" < DATE_TRUNC('month', CURRENT_DATE)) as "lastMonthEntries"
         FROM "ProgressEntry"
         WHERE "activityId" = $1
-        AND "entryDate" >= DATE_TRUNC('week', CURRENT_DATE)
       `, [id]),
 
       pg.query(`
-        SELECT COUNT(*)
+        SELECT DISTINCT "entryDate"::date as "entryDate"
         FROM "ProgressEntry"
         WHERE "activityId" = $1
-        AND "entryDate" >= DATE_TRUNC('month', CURRENT_DATE)
+        ORDER BY "entryDate" DESC
       `, [id]),
 
       pg.query(`
@@ -233,10 +238,10 @@ export async function getActivityStats(req, res) {
           metrics: metricStats.rows,
           timeBased: {
             averagePerWeek: 0,
-            thisWeekEntries: parseInt(entryDatesResult.rows[0].count) || 0,
-            lastWeekEntries: 0,
-            thisMonthEntries: parseInt(comparisonResult.rows[0].count) || 0,
-            lastMonthEntries: 0,
+            thisWeekEntries: parseInt(comparisonResult.rows[0].thisWeekEntries) || 0, // FIXED
+            lastWeekEntries: parseInt(comparisonResult.rows[0].lastWeekEntries) || 0, // FIXED
+            thisMonthEntries: parseInt(comparisonResult.rows[0].thisMonthEntries) || 0, // FIXED
+            lastMonthEntries: parseInt(comparisonResult.rows[0].lastMonthEntries) || 0, // FIXED
             weekOverWeek: 0,
             monthOverMonth: 0
           },

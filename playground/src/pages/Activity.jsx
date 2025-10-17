@@ -10,6 +10,8 @@ import { useToggleActivity } from "../hooks/mutations/useToggleActivity.js"
 import { useNavigate } from "react-router-dom"
 import { useState } from "react"
 import { UpdateActivity } from "../components/activities/UpdateActivity.jsx"
+import { GoalCard } from "../components/shared/GoalCard.jsx"
+import { ProgressEntryCard } from "../components/shared/ProgressEntryCard.jsx"
 
 export const Activity = () => {
   const { id } = useParams()
@@ -289,31 +291,10 @@ export const Activity = () => {
           ) : stats?.goals && stats.goals.length > 0 ? (
             <div className="space-y-4">
               {stats.goals.map((goal, index) => (
-                <div key={index} className="card bg-base-100 shadow-sm">
-                  <div className="card-body p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h4 className="font-semibold">{goal.targetValue} {goal.unit} of {goal.metricName}</h4>
-                        <p className="text-sm text-base-content/60">
-                          {new Date(goal.startDate).toLocaleDateString()} - {new Date(goal.endDate).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-primary">{goal.percentageComplete.toFixed(0)}%</div>
-                        <div className="text-xs text-base-content/60">{goal.daysRemaining} days left</div>
-                      </div>
-                    </div>
-                    <progress
-                      className="progress progress-primary w-full"
-                      value={goal.percentageComplete}
-                      max="100"
-                    ></progress>
-                    <div className="flex justify-between text-sm mt-2">
-                      <span className="text-base-content/60">Current: {goal.currentProgress} {goal.unit}</span>
-                      <span className="text-base-content/60">Target: {goal.targetValue} {goal.unit}</span>
-                    </div>
-                  </div>
-                </div>
+                <GoalCard
+                  goal={goal}
+                  key={goal.id}
+                />
               ))}
             </div>
           ) : (
@@ -352,29 +333,12 @@ export const Activity = () => {
           ) : stats?.recentEntries && stats.recentEntries.length > 0 ? (
             <div className="space-y-3">
               {stats.recentEntries.map((entry) => (
-                <div key={entry.id} className="card bg-base-100 shadow-sm">
-                  <div className="card-body p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <div className="font-semibold">{new Date(entry.entryDate).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}</div>
-                        {entry.notes && (
-                          <p className="text-sm text-base-content/70 mt-1">{entry.notes}</p>
-                        )}
-                      </div>
-                      <Link to={`/progress/${entry.id}`} className="btn btn-ghost btn-xs">
-                        View
-                      </Link>
-                    </div>
-                    <div className="flex flex-wrap gap-3">
-                      {entry.metrics.map((metric, idx) => (
-                        <div key={idx} className="badge badge-lg badge-outline">
-                          <span className="font-semibold mr-1">{metric.metricName}:</span>
-                          {metric.value} {metric.unit}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                <ProgressEntryCard
+                  entry={entry}
+                  key={entry.id}
+                  onEdit={() => console.log("edit")}
+                  onDelete={() => console.log("delete")}
+                />
               ))}
             </div>
           ) : (
