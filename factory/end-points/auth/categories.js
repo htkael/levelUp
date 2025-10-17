@@ -24,7 +24,7 @@ export async function getCategoryBasic(req, res) {
     }
 
     let activities = (await pg.query(`
-      SELECT "name", "description", "isActive"
+      SELECT id, "name", "description", "isActive"
       FROM "Activity"
       WHERE "categoryId" = $1
     `, [category.id])).rows

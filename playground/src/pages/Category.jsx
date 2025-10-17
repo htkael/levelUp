@@ -261,7 +261,7 @@ export const Category = () => {
                       <p className="text-sm text-base-content/70">{activity.description}</p>
                     )}
                   </div>
-                  <Link to={`/activities/${index + 1}`} className="btn btn-ghost btn-sm">
+                  <Link to={`/activities/${activity.id}`} className="btn btn-ghost btn-sm">
                     View →
                   </Link>
                 </div>
@@ -281,7 +281,7 @@ export const Category = () => {
                       <p className="text-sm text-base-content/70">{activity.description}</p>
                     )}
                   </div>
-                  <Link to={`/activities/${index + 1}`} className="btn btn-ghost btn-sm">
+                  <Link to={`/activities/${activity.id}`} className="btn btn-ghost btn-sm">
                     View →
                   </Link>
                 </div>
