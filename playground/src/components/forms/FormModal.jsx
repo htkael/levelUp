@@ -43,6 +43,9 @@ export const FormModal = ({
   const contextValue = { formData, handleChange }
 
   const handleSubmit = (e) => {
+    if (!externalFormData) {
+      setFormData(initialData)
+    }
     e.preventDefault()
     onSubmit(formData)
   }

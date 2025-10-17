@@ -79,7 +79,7 @@ export async function updateActivityMetric(req, res) {
 
     const updated = await UpdateAndLog("ActivityMetric", original.id, newActivityMetric)
 
-    if (updated.error) {
+    if (updated?.error) {
       throw new Error(updated.error)
     }
 
@@ -102,7 +102,7 @@ export async function deleteActivityMetric(req, res) {
 
     const deleted = await DeleteAndLog("ActivityMetric", id)
 
-    if (deleted.error) {
+    if (deleted?.error) {
       throw new Error(deleted.error)
     }
 

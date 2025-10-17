@@ -1,7 +1,7 @@
 
-export const StatCard = ({ name, value, icon, subtitle }) => {
+export const StatCard = ({ name, value, icon, subtitle, bg = "bg-base-100" }) => {
   return (
-    <div className="stat bg-base-100 rounded-lg shadow-sm">
+    <div className={`stat ${bg} rounded-lg shadow-sm`}>
       <div className="stat-figure text-primary">
         {icon}
       </div>

@@ -1,6 +1,6 @@
 import { useCategories } from "../hooks/useCategories"
 import { ErrorAlert } from "../components/shared/errors/ErrorAlert.jsx"
-import { CategoryCard } from "../components/shared/CategoryCard"
+import { CategoryCard } from "../components/categories/CategoryCard.jsx"
 import { EmptyState } from "../components/shared/EmptyState.jsx"
 import { LoadingSkeleton } from "../components/shared/LoadingSkeleton.jsx"
 import { CreateCategory } from "../components/categories/CreateCategory.jsx"
@@ -9,7 +9,7 @@ import { useState } from "react"
 export const Categories = () => {
   const [isAddOpen, setIsAddOpen] = useState(false)
   const { data, isLoading, error, refetch } = useCategories()
-  const categories = data?.categories || []
+  const categories = data || []
   const isEmpty = categories.length === 0
 
   const handleCreateCategory = () => {

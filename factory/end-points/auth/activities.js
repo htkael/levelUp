@@ -37,16 +37,12 @@ export async function getActivityBasic(req, res) {
 export async function listActivities(req, res) {
   try {
     const user = res?.locals?.user
-
     if (!user) {
       throw new Error("Invalid user")
     }
-
     const { groupId, isActive, categoryId } = req.body
-
     let searchField = "userId"
     let searchValue = []
-
     if (groupId) {
       searchField = "groupId"
       searchValue.push(groupId)
@@ -54,25 +50,53 @@ export async function listActivities(req, res) {
       searchValue.push(user.id)
     }
 
-    let filterClause = `WHERE ${searchField} = $1 `
-
-    if (isActive) {
-      filterClause += `AND "isActive" = $2 `
+    let filterClause = `WHERE a."${searchField}" = $1 `
+    if (isActive !== undefined) {
+      filterClause += `AND a."isActive" = $2 `
       searchValue.push(isActive)
     }
-
     if (categoryId) {
-      filterClause += `AND "categoryId" = $3`
+      const paramNum = searchValue.length + 1
+      filterClause += `AND a."categoryId" = $${paramNum} `
+      searchValue.push(categoryId)
     }
 
     const activities = (await pg.query(`
-      SELECT * FROM "Activity"
+      SELECT
+        a.*,
+        c.name as "categoryName",
+        c.color as "categoryColor",
+        COUNT(DISTINCT am.id) as "metricCount",
+        MAX(pe."entryDate") as "lastEntryDate",
+        COUNT(DISTINCT pe.id) as "totalEntries",
+        (
+          SELECT "metricName"
+          FROM "ActivityMetric"
+          WHERE "activityId" = a.id AND "isPrimary" = true
+          LIMIT 1
+        ) as "primaryMetricName",
+        (
+          SELECT pm.value
+          FROM "ProgressEntry" pe2
+          JOIN "ProgressMetric" pm ON pm."entryId" = pe2.id
+          JOIN "ActivityMetric" am2 ON am2.id = pm."metricId"
+          WHERE pe2."activityId" = a.id
+            AND am2."isPrimary" = true
+          ORDER BY pe2."entryDate" DESC
+          LIMIT 1
+        ) as "primaryMetricLastValue"
+      FROM "Activity" a
+      LEFT JOIN "Category" c ON c.id = a."categoryId"
+      LEFT JOIN "ActivityMetric" am ON am."activityId" = a.id
+      LEFT JOIN "ProgressEntry" pe ON pe."activityId" = a.id
       ${filterClause}
-    `, [searchValue])).rows
+      GROUP BY a.id, c.name, c.color
+      ORDER BY a."createdAt" DESC
+    `, searchValue)).rows
 
     return res.send({ success: true, activities })
   } catch (error) {
-    Logger.error("Error listing categories", { error: error.message })
+    Logger.error("Error listing activities", { error: error.message })
     return res.send({ success: false, error: error.message })
   }
 }
@@ -320,13 +344,14 @@ export async function updateActivity(req, res) {
       ...original,
       name: activity?.name ? activity.name : original.name,
       description: activity?.description ? activity.description : original?.description,
-      isActive: category?.isActive ? category.isActive : original.isActive,
+      isActive: activity?.isActive ? activity.isActive : original.isActive,
+      categoryId: activity?.categoryId ? activity.categoryId : original.categoryId,
       updatedAt: new Date()
     }
 
     const updated = await UpdateAndLog("Activity", original.id, newActivity)
 
-    if (updated.error) {
+    if (updated?.error) {
       throw new Error(updated.error)
     }
 
@@ -369,7 +394,7 @@ export async function deleteActivity(req, res) {
 
     const deleted = await DeleteAndLog("Activity", id)
 
-    if (deleted.error) {
+    if (deleted?.error) {
       throw new Error(deleted.error)
     }
 
@@ -420,7 +445,7 @@ export async function toggleActivity(req, res) {
 
     const updated = await UpdateAndLog("Activity", id, newActivity)
 
-    if (updated.error) {
+    if (updated?.error) {
       throw new Error(updated.error)
     }
 

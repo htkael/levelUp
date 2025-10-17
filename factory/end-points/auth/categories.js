@@ -215,14 +215,14 @@ export async function createCategory(req, res) {
 
     const created = await CreateAndLog("Category", newCategory)
 
-    if (created.error) {
+    if (created?.error) {
       throw new Error(created.error)
     }
 
     return res.send({ success: true, created })
   } catch (error) {
     Logger.error("Unable to create category", { error: error.message })
-    return res.send({ success: false, error: error })
+    return res.send({ success: false, error: error.message })
   }
 }
 
@@ -266,14 +266,14 @@ export async function updateCategory(req, res) {
 
     const updated = await UpdateAndLog("Category", original.id, newCategory)
 
-    if (updated.error) {
+    if (updated?.error) {
       throw new Error(updated.error)
     }
 
     return res.send({ success: true, updated })
   } catch (error) {
     Logger.error("Unable to update category", { error: error.message })
-    return res.send({ success: false, error: error })
+    return res.send({ success: false, error: error.message })
   }
 }
 
@@ -303,7 +303,7 @@ export async function deleteCategory(req, res) {
 
     if (original?.groupId) {
       const role = await getUserGroupRole(user, original.groupId)
-      if (role.error) {
+      if (role?.error) {
         throw new Error(role.error)
       }
       if (role !== "ADMIN") {
@@ -313,13 +313,13 @@ export async function deleteCategory(req, res) {
 
     const deleted = await DeleteAndLog("Category", id)
 
-    if (deleted.error) {
+    if (deleted?.error) {
       throw new Error(deleted.error)
     }
 
     return res.send({ success: true })
   } catch (error) {
-    Logger.error("Unable to delete category", { error })
-    return res.send({ success: false, error: error })
+    Logger.error("Unable to delete category", { error: error.message })
+    return res.send({ success: false, error: error.message })
   }
 }

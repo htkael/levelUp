@@ -408,7 +408,7 @@ export async function toggleGoal(req, res) {
 
     const updated = await UpdateAndLog("Goal", id, newGoal)
 
-    if (updated.error) {
+    if (updated?.error) {
       throw new Error(updated.error)
     }
 

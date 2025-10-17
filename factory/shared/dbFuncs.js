@@ -81,7 +81,7 @@ export const UpdateAndLog = async (tablename, itemId, updated, consoleLog = true
     let result = r.length === 1 ? r[0] : undefined
 
     if (consoleLog) {
-      Logger.debug("==== RESULTING UPDATE ====", { item, result })
+      Logger.debug("==== RESULTING UPDATE ====", { itemId, result })
     }
 
     if (result) {
@@ -90,8 +90,8 @@ export const UpdateAndLog = async (tablename, itemId, updated, consoleLog = true
       throw new Error(`Unable to update Table[${tablename}] using item: ${JSON.stringify(updated)}`)
     }
   } catch (error) {
-    Logger.error(`${tablename} failed to update`, { error, objects: { updated, tablename } });
-    return { error: { msg: `${tablename} failed to update`, obj: { item, tablename } } };
+    Logger.error(`${tablename} failed to update`, { error: error.message, objects: { updated, tablename } });
+    return { error: { msg: `${tablename} failed to update`, obj: { itemId, tablename } } };
   }
 }
 
@@ -111,7 +111,7 @@ export const DeleteAndLog = async (tablename, itemId, client = pg) => {
 export const getGenericById = async (tablename, itemId, client = pg) => {
   try {
     const item = (await client.query(`
-      SELECT * FROM ${tablename}
+      SELECT * FROM "${tablename}"
       WHERE id = $1
     `, [itemId])).rows[0]
 

@@ -326,7 +326,7 @@ export async function deleteProgressEntry(req, res) {
 
     const deleted = await DeleteAndLog("ProgressEntry", id)
 
-    if (deleted.error) {
+    if (deleted?.error) {
       throw new Error(deleted.error)
     }
 

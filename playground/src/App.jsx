@@ -10,6 +10,8 @@ import { Categories } from './pages/Categories.jsx'
 import { ToastContainer } from 'react-toastify'
 import { ErrorBoundary } from 'react-error-boundary'
 import { ErrorBoundaryFallback } from "./components/shared/errors/ErrorBoundaryFallback.jsx"
+import { Category } from "./pages/Category.jsx"
+import { Activities } from './pages/Activities.jsx'
 
 function App() {
   return (
@@ -19,6 +21,8 @@ function App() {
       <Route path="/" element={<AuthenticatedPageWrapper />}>
         <Route path="" element={<Dashboard />} />
         <Route path="categories" element={<Categories />} />
+        <Route path="categories/:id" element={<Category />} />
+        <Route path="activities" element={<Activities />} />
       </Route>
     </Routes>
   )
