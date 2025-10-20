@@ -271,6 +271,8 @@ export async function getActivityStats(req, res) {
     const longestStreak = calculateLongestStreak(entryDatesResult.rows)
     const totalDaysLogged = entryDatesResult.rows.length
     const engagementRate = parseFloat(((totalDaysLogged / daysSinceFirst) * 100).toFixed(1))
+    Logger.debug("entry dates result", entryDatesResult.rows)
+    Logger.debug("currentStreak", { currentStreak })
 
     const goals = goalsResult.rows.map(goal => ({
       ...goal,

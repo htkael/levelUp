@@ -56,10 +56,10 @@ export async function getDashStats(req, res) {
       `, [user.id]),
 
       pg.query(`
-        SELECT DISTINCT "entryDate"::date as entry_date
+        SELECT DISTINCT "entryDate"::date as "entryDate"
         FROM "ProgressEntry"
         WHERE "userId" = $1
-        ORDER BY entry_date DESC
+        ORDER BY "entryDate" DESC
       `, [user.id]),
 
       pg.query(`
@@ -227,11 +227,11 @@ export async function getGroupDashStats(req, res) {
       `, [groupId]),
 
       client.query(`
-        SELECT DISTINCT pe."entryDate"::date as entry_date
+        SELECT DISTINCT pe."entryDate"::date as "entryDate"
         FROM "ProgressEntry" pe
         JOIN "Activity" a ON a.id = pe."activityId"
         WHERE a."groupId" = $1
-        ORDER BY entry_date DESC
+        ORDER BY "entryDate" DESC
       `, [groupId]),
 
       client.query(`

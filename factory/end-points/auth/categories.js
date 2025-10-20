@@ -154,11 +154,12 @@ export async function getCategoryStats(req, res) {
       `, [id]),
 
       pg.query(`
-        SELECT DISTINCT pe."entryDate"::date as "entry_date"
+        SELECT DISTINCT pe."entryDate"::date as "entryDate"
         FROM "Activity" a
         LEFT JOIN "ProgressEntry" pe on pe."activityId" = a.id
         WHERE a."categoryId" = $1
-        ORDER BY "entry_date" DESC
+        AND pe."entryDate" IS NOT NULL
+        ORDER BY "entryDate" DESC
       `, [id])
     ])
 

@@ -8,7 +8,7 @@ export function calculateStreak(dateRows) {
   yesterday.setDate(yesterday.getDate() - 1)
 
   const entryDates = dateRows.map(row => {
-    const date = new Date(row.entry_date)
+    const date = new Date(row.entryDate)
     date.setHours(0, 0, 0, 0)
     return date.getTime()
   })
@@ -39,7 +39,7 @@ export function calculateLongestStreak(dateRows) {
   if (dateRows.length === 0) return 0
 
   const entryDates = dateRows.map(row => {
-    const date = new Date(row.entry_date)
+    const date = new Date(row.entryDate)
     date.setHours(0, 0, 0, 0)
     return date.getTime()
   })
