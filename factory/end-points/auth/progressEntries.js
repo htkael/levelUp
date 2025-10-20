@@ -190,7 +190,8 @@ export async function createProgressEntry(req, res) {
 
 
     const newProgressEntry = {
-      ...progressEntry,
+      entryDate: progressEntry.entryDate,
+      activityId: progressEntry.activityId,
       userId: user.id,
       updatedAt: new Date()
     }

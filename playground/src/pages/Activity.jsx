@@ -12,10 +12,15 @@ import { useState } from "react"
 import { UpdateActivity } from "../components/activities/UpdateActivity.jsx"
 import { GoalCard } from "../components/shared/GoalCard.jsx"
 import { ProgressEntryCard } from "../components/shared/ProgressEntryCard.jsx"
+import { CreateMetricType } from "../components/activities/CreateMetricType.jsx"
+import { MetricCard } from "../components/activities/MetricCard.jsx"
+import { CreateProgressEntry } from "../components/progressEntries/CreateProgressEntry.jsx"
 
 export const Activity = () => {
   const { id } = useParams()
   const [updateOpen, setUpdateOpen] = useState(false)
+  const [isAddMetricOpen, setIsAddMetricOpen] = useState(false)
+  const [addEntryOpen, setAddEntryOpen] = useState(false)
 
   const { data: activity, isLoading, error } = useActivityBasic(id)
   const { data: stats, isLoading: statsLoading } = useActivityStats(id)
@@ -43,6 +48,22 @@ export const Activity = () => {
 
   const handleCloseUpdate = () => {
     setUpdateOpen(false)
+  }
+
+  const handleOpenAddMetric = () => {
+    setIsAddMetricOpen(true)
+  }
+
+  const handleCloseAddMetric = () => {
+    setIsAddMetricOpen(false)
+  }
+
+  const handleOpenAddEntry = () => {
+    setAddEntryOpen(true)
+  }
+
+  const handleCloseAddEntry = () => {
+    setAddEntryOpen(false)
   }
 
   if (isLoading) {
@@ -142,7 +163,7 @@ export const Activity = () => {
         <div className="card-body">
           <div className="flex justify-between items-center mb-4">
             <h3 className="card-title">Metrics</h3>
-            <button className="btn btn-primary btn-sm">
+            <button className="btn btn-primary btn-sm" onClick={handleOpenAddMetric}>
               <span className="text-lg">+</span>
               Add Metric
             </button>
@@ -156,32 +177,10 @@ export const Activity = () => {
           ) : stats?.metrics && stats.metrics.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {stats.metrics.map((metric) => (
-                <div key={metric.metricId} className="card bg-base-100 shadow-sm">
-                  <div className="card-body p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-semibold">{metric.metricName}</h4>
-                      {activity.metrics?.find(m => m.metricName === metric.metricName)?.isPrimary && (
-                        <div className="badge badge-primary badge-sm">Primary</div>
-                      )}
-                    </div>
-                    <div className="space-y-1 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-base-content/60">Average:</span>
-                        <span className="font-semibold">{metric.averageValue?.toFixed(1)} {metric.unit}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-base-content/60">Min / Max:</span>
-                        <span className="font-semibold">{metric.minValue} / {metric.maxValue} {metric.unit}</span>
-                      </div>
-                      {metric.cumulativeValue && (
-                        <div className="flex justify-between">
-                          <span className="text-base-content/60">Total:</span>
-                          <span className="font-semibold">{metric.cumulativeValue?.toFixed(1)} {metric.unit}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                <MetricCard
+                  metric={metric}
+                  key={metric.metricId}
+                />
               ))}
             </div>
           ) : (
@@ -196,7 +195,6 @@ export const Activity = () => {
         </div>
       </div>
 
-      {/* Stats Grid */}
       {
         statsLoading ? (
           <div className="card bg-base-200 shadow-sm">
@@ -210,7 +208,6 @@ export const Activity = () => {
           </div>
         ) : stats && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Time-based Stats */}
             <div className="card bg-base-200 shadow-sm">
               <div className="card-body">
                 <h3 className="card-title">Recent Activity</h3>
@@ -245,7 +242,6 @@ export const Activity = () => {
               </div>
             </div>
 
-            {/* Consistency Stats */}
             <div className="card bg-base-200 shadow-sm">
               <div className="card-body">
                 <h3 className="card-title">Consistency</h3>
@@ -273,7 +269,45 @@ export const Activity = () => {
         )
       }
 
-      {/* Active Goals */}
+      <div className="card bg-base-200 shadow-sm">
+        <div className="card-body">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="card-title">Recent Entries</h3>
+            <div className="flex gap-2">
+              <button className="btn btn-primary btn-sm" onClick={handleOpenAddEntry}>
+                <span className="text-lg">+</span>
+                Log Progress
+              </button>
+              <Link to={`/progress/calendar?activity=${id}`} className="btn btn-ghost btn-sm">
+                View All →
+              </Link>
+            </div>
+          </div>
+
+          {statsLoading ? (
+            <div className="space-y-3">
+              <div className="skeleton h-24 w-full"></div>
+              <div className="skeleton h-24 w-full"></div>
+            </div>
+          ) : stats?.recentEntries && stats.recentEntries.length > 0 ? (
+            <div className="space-y-3">
+              {stats.recentEntries.map((entry) => (
+                <ProgressEntryCard
+                  entry={entry}
+                  key={entry.id}
+                  onEdit={() => console.log("edit")}
+                  onDelete={() => console.log("delete")}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-base-content/60">
+              <p>No entries yet. Log your first progress!</p>
+            </div>
+          )}
+        </div>
+      </div>
+
       <div className="card bg-base-200 shadow-sm">
         <div className="card-body">
           <div className="flex justify-between items-center mb-4">
@@ -308,50 +342,20 @@ export const Activity = () => {
           )}
         </div>
       </div>
-
-      {/* Recent Entries */}
-      <div className="card bg-base-200 shadow-sm">
-        <div className="card-body">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="card-title">Recent Entries</h3>
-            <div className="flex gap-2">
-              <button className="btn btn-primary btn-sm">
-                <span className="text-lg">+</span>
-                Log Progress
-              </button>
-              <Link to={`/progress/calendar?activity=${id}`} className="btn btn-ghost btn-sm">
-                View All →
-              </Link>
-            </div>
-          </div>
-
-          {statsLoading ? (
-            <div className="space-y-3">
-              <div className="skeleton h-24 w-full"></div>
-              <div className="skeleton h-24 w-full"></div>
-            </div>
-          ) : stats?.recentEntries && stats.recentEntries.length > 0 ? (
-            <div className="space-y-3">
-              {stats.recentEntries.map((entry) => (
-                <ProgressEntryCard
-                  entry={entry}
-                  key={entry.id}
-                  onEdit={() => console.log("edit")}
-                  onDelete={() => console.log("delete")}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-base-content/60">
-              <p>No entries yet. Log your first progress!</p>
-            </div>
-          )}
-        </div>
-      </div>
       <UpdateActivity
         isOpen={updateOpen}
         onClose={handleCloseUpdate}
         activity={activity}
+      />
+      <CreateMetricType
+        isOpen={isAddMetricOpen}
+        onClose={handleCloseAddMetric}
+        activityId={activity?.id}
+      />
+      <CreateProgressEntry
+        isOpen={addEntryOpen}
+        onClose={handleCloseAddEntry}
+        activityId={activity?.id}
       />
     </div >
   )

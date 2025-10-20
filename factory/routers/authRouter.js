@@ -6,7 +6,7 @@ import { logout } from "../end-points/noAuth/login.js"
 import { getDashStats, getGroupDashStats } from "../end-points/auth/pages/dashboard.js"
 import { createCategory, deleteCategory, getCategoryBasic, getCategoryStats, listCategories, updateCategory } from "../end-points/auth/categories.js"
 import { createActivity, deleteActivity, getActivityBasic, getActivityStats, listActivities, toggleActivity, updateActivity } from "../end-points/auth/activities.js"
-import { createActivityMetric, deleteActivityMetric, makePrimaryMetric, updateActivityMetric } from "../end-points/auth/activityMetrics.js"
+import { createActivityMetric, deleteActivityMetric, listActivityMetrics, makePrimaryMetric, updateActivityMetric } from "../end-points/auth/activityMetrics.js"
 import { createProgressEntry, deleteProgressEntry, getProgressEntry, listProgressEntries, listProgressEntryCalendar, updateProgressEntry } from "../end-points/auth/progressEntries.js"
 import { createGoal, deleteGoal, getGoal, listGoals, toggleGoal, updateGoal } from "../end-points/auth/goals.js"
 import { addMember, createGroup, deleteGroup, getGroup, listGroups, removeMember, updateGroup, updateRole } from "../end-points/auth/groups.js"
@@ -40,6 +40,7 @@ authRouter.post("/activity/update", updateActivity)
 authRouter.post("/activity/delete", deleteActivity)
 authRouter.post("/activity/toggle", toggleActivity)
 
+authRouter.post("/activity-metric/list", listActivityMetrics)
 authRouter.post("/activity-metric/create", createActivityMetric)
 authRouter.post("/activity-metric/update", updateActivityMetric)
 authRouter.post("/activity-metric/delete", deleteActivityMetric)

@@ -10,6 +10,7 @@ export const FormInput = ({
   options = null,
   min,
   max,
+  presetValue = undefined,
   styles,
   ...props
 }) => {
@@ -24,7 +25,7 @@ export const FormInput = ({
   }
 
   const { formData, handleChange } = useFormContext()
-  const value = formData[name] || ""
+  const value = presetValue !== undefined ? presetValue : (formData[name] !== undefined ? formData[name] : "")
 
   if (type === "select" && options) {
     return (
@@ -115,6 +116,7 @@ export const TextInput = ({
   label,
   name,
   styles,
+  presetValue,
   ...props
 }) => {
   return (
@@ -123,6 +125,7 @@ export const TextInput = ({
       name={name}
       type="text"
       styles={styles}
+      presetValue={presetValue}
       {...props}
     />
   )
@@ -132,6 +135,7 @@ export const DateInput = ({
   label,
   name,
   styles,
+  presetValue,
   ...props
 }) => {
   return (
@@ -140,6 +144,7 @@ export const DateInput = ({
       name={name}
       type="date"
       styles={styles}
+      presetValue={presetValue}
       {...props}
     />
   )
@@ -149,6 +154,7 @@ export const TimeInput = ({
   label,
   name,
   styles,
+  presetValue,
   ...props
 }) => {
   return (
@@ -157,6 +163,7 @@ export const TimeInput = ({
       name={name}
       type="time"
       styles={styles}
+      presetValue={presetValue}
       onFocus={(e) => e.target.showPicker()}
       onClick={(e) => e.target.showPicker()}
       {...props}
@@ -168,6 +175,7 @@ export const SelectInput = ({
   label,
   name,
   options,
+  presetValue,
   styles,
   ...props
 }) => {
@@ -177,6 +185,7 @@ export const SelectInput = ({
       name={name}
       type="select"
       options={options}
+      presetValue={presetValue}
       styles={styles}
       {...props}
     />
@@ -189,6 +198,7 @@ export const NumberInput = ({
   styles,
   min,
   max,
+  presetValue,
   ...props
 }) => {
   return (
@@ -198,6 +208,7 @@ export const NumberInput = ({
       type="number"
       styles={styles}
       min={min}
+      presetValue={presetValue}
       max={max}
       {...props}
     />
@@ -208,6 +219,7 @@ export const TextArea = ({
   label,
   name,
   styles,
+  presetValue,
   ...props
 }) => {
   return (
@@ -216,12 +228,13 @@ export const TextArea = ({
       name={name}
       type="textarea"
       styles={styles}
+      presetValue={presetValue}
       {...props}
     />
   )
 }
 
-export const PasswordInput = ({ label, name, styles, ...props }) => {
+export const PasswordInput = ({ label, name, styles, presetValue, ...props }) => {
   const [showPassword, setShowPassword] = useState(false)
 
   if (!styles) {
@@ -289,6 +302,7 @@ export const EmailInput = ({
   label,
   name,
   styles,
+  presetValue,
   ...props
 }) => {
   return (
@@ -297,6 +311,7 @@ export const EmailInput = ({
       name={name}
       type="email"
       styles={styles}
+      presetValue={presetValue}
       {...props}
     />
   )
@@ -306,6 +321,7 @@ export const ColorInput = ({
   label,
   name,
   styles,
+  presetValue,
   ...props
 }) => {
   if (!styles) {
@@ -322,7 +338,43 @@ export const ColorInput = ({
       name={name}
       type="color"
       styles={styles}
+      presetValue={presetValue}
       {...props}
     />
+  )
+}
+export const CheckboxInput = ({
+  label,
+  name,
+  styles,
+  presetValue,
+  ...props
+}) => {
+  if (!styles) {
+    styles = {
+      wrapper: `form-control w-full`,
+      label: "label cursor-pointer",
+      checkbox: "checkbox checkbox-primary",
+    }
+  }
+
+  const { formData, handleChange } = useFormContext()
+  const checked = presetValue !== undefined ? presetValue : (formData[name] !== undefined ? formData[name] : false)
+
+  return (
+    <div className={styles.wrapper}>
+      <label className={styles.label}>
+        <span className="label-text">{label}</span>
+        <input
+          id={name}
+          type="checkbox"
+          name={name}
+          checked={checked}
+          onChange={handleChange}
+          className={styles.checkbox}
+          {...props}
+        />
+      </label>
+    </div>
   )
 }

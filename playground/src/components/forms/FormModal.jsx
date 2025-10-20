@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { FormProvider } from "../../contexts/FormContext"
 
 export const FormModal = ({
@@ -14,6 +14,7 @@ export const FormModal = ({
   submitText = "Save",
   error = null,
   size = "md",
+  submitDisabled,
   formData: externalFormData,
   setFormData: externalSetFormData,
   handleChange: externalHandleChange,
@@ -37,6 +38,12 @@ export const FormModal = ({
       onChange(updatedData)
     }
   }
+
+  useEffect(() => {
+    if (isOpen) {
+      setInternalFormData(initialData)
+    }
+  }, [isOpen, initialData])
 
   const handleChange = externalHandleChange || internalHandleChange
 
@@ -104,7 +111,7 @@ export const FormModal = ({
             <button type="button" className="btn btn-ghost" onClick={handleClose}>
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary">
+            <button type="submit" className="btn btn-primary" disabled={submitDisabled}>
               {submitText}
             </button>
           </div>

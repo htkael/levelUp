@@ -29,6 +29,7 @@ export const CreateCategory = ({ isOpen, onClose }) => {
       submitText={isPending ? "Creating..." : "Create Category"}
       error={error?.message}
       size="md"
+      submitDisabled={isPending}
     >
       <TextInput
         name="name"

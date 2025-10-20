@@ -135,14 +135,16 @@ export async function getActivityStats(req, res) {
           am."metricName",
           am."metricType",
           am.unit,
+          am."isPrimary",
+          am."activityId",
           MAX(pe."entryDate") as "mostRecent",
-          MIN(pm.value) as "minValue",
-          MAX(pm.value) as "maxValue",
-          AVG(pm.value) as "averageValue",
-          SUM(pm.value) as "cumulativeValue"
+          COALESCE(MIN(pm.value), 0)::float as "minValue",
+          COALESCE(MAX(pm.value), 0)::float as "maxValue",
+          COALESCE(AVG(pm.value), 0)::float as "averageValue",
+          COALESCE(SUM(pm.value), 0)::float as "cumulativeValue"
         FROM "ActivityMetric" am
         LEFT JOIN "ProgressMetric" pm ON pm."metricId" = am.id
-        JOIN "ProgressEntry" pe ON pe.id = pm."entryId" AND pe."activityId" = $1
+        LEFT JOIN "ProgressEntry" pe ON pe.id = pm."entryId" AND pe."activityId" = $1
         WHERE am."activityId" = $1
         GROUP BY am.id, am."metricName", am."metricType", am.unit
       `, [id]),
