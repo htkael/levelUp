@@ -21,6 +21,7 @@ export const useUpdateActivityMetric = () => {
       queryClient.invalidateQueries({ queryKey: ["activity", data.activityId] })
       queryClient.invalidateQueries({ queryKey: ["activityStats", data.activityId] })
       queryClient.invalidateQueries({ queryKey: ["activities"] })
+      queryClient.invalidateQueries({ queryKey: ["activityMetric", data.activityId] })
     },
 
     onError: (error) => {

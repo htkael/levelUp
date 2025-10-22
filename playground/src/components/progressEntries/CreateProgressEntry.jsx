@@ -118,7 +118,6 @@ export const CreateProgressEntry = ({ isOpen, onClose, activityId = null }) => {
               <label className="label">
                 <span className="label-text font-semibold">
                   {m.metricName}
-                  <span className="text-error ml-1">*</span>
                 </span>
                 {m.unit && (
                   <span className="label-text-alt text-base-content/60">{m.unit}</span>
@@ -130,7 +129,6 @@ export const CreateProgressEntry = ({ isOpen, onClose, activityId = null }) => {
                   <CheckboxInput
                     name={`metric-${m.id}`}
                     label="Completed"
-                    required
                     presetValue={getMetricValue(m.id)}
                   />
                 </div>
@@ -140,7 +138,6 @@ export const CreateProgressEntry = ({ isOpen, onClose, activityId = null }) => {
                   label=""
                   placeholder={`Enter ${m.metricName.toLowerCase()}`}
                   step={m.metricType === "duration" ? "1" : "0.01"}
-                  required
                   presetValue={getMetricValue(m.id)}
                 />
               )}

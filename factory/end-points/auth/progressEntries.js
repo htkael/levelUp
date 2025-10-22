@@ -205,13 +205,8 @@ export async function createProgressEntry(req, res) {
     const metrics = progressEntry?.metrics
 
     if (metrics && metrics.length > 0) {
-      metrics.forEach(metric => {
-        if (!(metric?.metricId && metric?.value !== null)) {
-          throw new Error("Metrics must have both a value and metric type")
-        }
-      });
 
-      const metricValues = metrics.map((m) => {
+      const metricValues = metrics.filter((m) => m.value !== undefined && m.value !== null).map((m) => {
         return [m.value, m.metricId, created.id]
       })
 

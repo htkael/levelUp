@@ -1,20 +1,14 @@
-import { formatDistanceToNow } from "date-fns"
+import { formatDistanceToNow, isToday, isYesterday, parseISO, startOfDay } from "date-fns"
+
 
 export const formatRelativeDate = (dateString) => {
   if (!dateString) return "Never"
+  console.log("dateString", dateString)
 
-  const date = new Date(dateString)
+  const date = startOfDay(parseISO(dateString))
 
-  const today = new Date()
-  if (date.toDateString() === today.toDateString()) {
-    return "Today"
-  }
-
-  const yesterday = new Date(today)
-  yesterday.setDate(yesterday.getDate() - 1)
-  if (date.toDateString() === yesterday.toDateString()) {
-    return "Yesterday"
-  }
+  if (isToday(date)) return "Today"
+  if (isYesterday(date)) return "Yesterday"
 
   return formatDistanceToNow(date, { addSuffix: true })
 }

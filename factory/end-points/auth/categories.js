@@ -163,6 +163,7 @@ export async function getCategoryStats(req, res) {
       `, [id])
     ])
 
+
     const totalEntries = overviewResult.rows[0].totalEntries
     const firstEntry = overviewResult.rows[0].firstEntry
     const daysSinceFirst = Math.floor((new Date() - new Date(firstEntry)) / (1000 * 60 * 60 * 24))
