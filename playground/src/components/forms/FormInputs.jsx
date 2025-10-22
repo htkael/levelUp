@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useFormContext } from "../../contexts/FormContext"
 import { EyeIcon } from "../../shared/icons"
 import { FaEyeSlash } from "react-icons/fa"
+import { getTodayLocal } from "../../utils/dateHelpers"
 
 export const FormInput = ({
   label,
@@ -136,6 +137,7 @@ export const DateInput = ({
   name,
   styles,
   presetValue,
+  maxToday = true,
   ...props
 }) => {
   return (
@@ -144,6 +146,7 @@ export const DateInput = ({
       name={name}
       type="date"
       styles={styles}
+      max={maxToday ? getTodayLocal() : undefined}
       presetValue={presetValue}
       {...props}
     />
@@ -155,6 +158,7 @@ export const TimeInput = ({
   name,
   styles,
   presetValue,
+  maxToday = true,
   ...props
 }) => {
   return (
@@ -163,6 +167,7 @@ export const TimeInput = ({
       name={name}
       type="time"
       styles={styles}
+      max={maxToday ? getTodayLocal() : undefined}
       presetValue={presetValue}
       onFocus={(e) => e.target.showPicker()}
       onClick={(e) => e.target.showPicker()}

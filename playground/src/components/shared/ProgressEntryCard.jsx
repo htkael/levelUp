@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom"
+import { formatDate } from "../../utils/dateHelpers"
 
 export const ProgressEntryCard = ({
   entry,
@@ -13,12 +14,7 @@ export const ProgressEntryCard = ({
           <div className="flex-1">
             {/* Date */}
             <div className="font-semibold">
-              {new Date(entry.entryDate).toLocaleDateString('en-US', {
-                weekday: 'short',
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-              })}
+              {formatDate(entry.entryDate, 'EEE, MMM d, yyyy')}
             </div>
 
             {/* Activity Name (if showing) */}

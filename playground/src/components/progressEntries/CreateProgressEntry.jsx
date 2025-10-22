@@ -4,11 +4,12 @@ import { useCreateProgressEntry } from "../../hooks/mutations/useCreateProgressE
 import { useActivities } from "../../hooks/useActivities.js"
 import { FormModal } from "../forms/FormModal"
 import { CheckboxInput, DateInput, NumberInput, SelectInput, TextArea } from "../forms/FormInputs"
+import { getTodayLocal } from "../../utils/dateHelpers.js"
 
 export const CreateProgressEntry = ({ isOpen, onClose, activityId = null }) => {
   const initialData = {
     activityId: activityId ? activityId : null,
-    entryDate: new Date().toISOString().split('T')[0],
+    entryDate: getTodayLocal(),
     notes: "",
     metrics: []
   }

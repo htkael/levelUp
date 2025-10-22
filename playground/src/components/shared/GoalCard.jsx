@@ -1,4 +1,6 @@
+import { formatDate } from "date-fns"
 import { Link } from "react-router-dom"
+import { formatRelativeDate } from "../../utils/dateHelpers"
 
 export const GoalCard = ({ goal, showActivity = false }) => {
   return (
@@ -13,7 +15,7 @@ export const GoalCard = ({ goal, showActivity = false }) => {
               <p className="text-sm text-base-content/60">{goal.activityName}</p>
             )}
             <p className="text-sm text-base-content/60">
-              {new Date(goal.startDate).toLocaleDateString()} - {new Date(goal.endDate).toLocaleDateString()}
+              {formatDate(goal.startDate, "MMM d, yyyy")} - {formatDate(goal.endDate, "MMM d, yyyy")}
             </p>
           </div>
           <div className="text-right">
@@ -46,7 +48,7 @@ export const GoalCard = ({ goal, showActivity = false }) => {
         {/* Last Entry Date */}
         {goal.lastEntryDate && (
           <div className="text-xs text-base-content/60 mt-2">
-            Last logged: {new Date(goal.lastEntryDate).toLocaleDateString()}
+            Last logged: {formatRelativeDate(goal.lastEntryDate)}
           </div>
         )}
 

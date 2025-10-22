@@ -1,4 +1,4 @@
-import { getCurrentDateInTimezone, getDaysAgoInTimezone } from "./timezone"
+import { getCurrentDateInTimezone, getDaysAgoInTimezone } from "./timezone.js"
 
 export function calculateStreak(dateRows, timezone) {
   if (dateRows.length === 0) return 0

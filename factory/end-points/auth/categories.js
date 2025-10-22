@@ -175,7 +175,7 @@ export async function getCategoryStats(req, res) {
     const firstEntry = overview.firstEntry
 
     const today = getCurrentDateInTimezone(timezone)
-    const daysSinceFirst = firstEntry ? Math.floor((new Date(today - new Date(firstEntry)) / (1000 * 60 * 60 * 24))) : 0
+    const daysSinceFirst = firstEntry ? Math.floor((new Date(today) - new Date(firstEntry)) / (1000 * 60 * 60 * 24)) : 0
 
     const totalWeeks = Math.ceil(daysSinceFirst / 7) || 1
     const averagePerWeek = (totalEntries / totalWeeks).toFixed(1)
