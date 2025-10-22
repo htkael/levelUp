@@ -7,6 +7,7 @@ export const ProgressEntryCard = ({
   onEdit,
   onDelete
 }) => {
+  console.log("entry", entry)
   return (
     <div className="card bg-base-100 shadow-sm">
       <div className="card-body p-4">

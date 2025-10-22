@@ -198,6 +198,7 @@ export async function createProgressEntry(req, res) {
         : parseUserDate(getCurrentDateInTimezone(timezone), timezone),
       activityId: progressEntry.activityId,
       userId: user.id,
+      notes: progressEntry.notes,
       updatedAt: new Date()
     }
 
