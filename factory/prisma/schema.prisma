@@ -35,6 +35,7 @@ model User {
   passwordHash  String
   firstName     String?         @db.VarChar(80)
   lastName      String?         @db.VarChar(80)
+  timezone      String?         @default("America/Chicago") @db.VarChar(50)
   UserGroup     UserGroup[]
   Category      Category[]
   Activity      Activity[]
