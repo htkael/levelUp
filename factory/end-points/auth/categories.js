@@ -2,6 +2,7 @@ import { CreateAndLog, DeleteAndLog, getGenericById, getUserGroupRole, UpdateAnd
 import { Logger } from "../../shared/logger.js"
 import pg from "../../pg-cli.js"
 import { calculateStreak } from "../../shared/utils.js"
+import { formatRelativeDateInTimezone, getCurrentDateInTimezone, getStartOfMonthInTimezone, getStartOfWeekInTimezone } from "../../shared/timezone.js"
 
 export async function getCategoryBasic(req, res) {
   try {
@@ -81,11 +82,17 @@ export async function getCategoryStats(req, res) {
     if (!user) {
       throw new Error("Invalid user")
     }
+
+    const timezone = res.locals.userTimezone
+
     const { id } = req.body
 
     if (!id) {
       throw new Error("Category id required")
     }
+
+    const weekStart = getStartOfWeekInTimezone(timezone)
+    const monthStart = getStartOfMonthInTimezone(timezone)
 
     const [overviewResult, mostEntries, lastLoggedEntry, activeAndInactiveCount, weeklyEntries, monthlyEntries, entryDatesResult] = await Promise.all([
       pg.query(`
@@ -140,18 +147,18 @@ export async function getCategoryStats(req, res) {
           COUNT(pe.id) as "weeklyEntries"
         FROM "Activity" a
         LEFT JOIN "ProgressEntry" pe ON pe."activityId" = a.id
-          AND pe."entryDate" >= DATE_TRUNC('week', CURRENT_DATE)
+          AND pe."entryDate" >= $2
         WHERE a."categoryId" = $1
-      `, [id]),
+      `, [id, weekStart]),
 
       pg.query(`
         SELECT
           COUNT(pe.id) as "monthlyEntries"
         FROM "Activity" a
         LEFT JOIN "ProgressEntry" pe ON pe."activityId" = a.id
-          AND pe."entryDate" >= DATE_TRUNC('month', CURRENT_DATE)
+          AND pe."entryDate" >= $2
         WHERE a."categoryId" = $1
-      `, [id]),
+      `, [id, monthStart]),
 
       pg.query(`
         SELECT DISTINCT pe."entryDate"::date as "entryDate"
@@ -163,22 +170,31 @@ export async function getCategoryStats(req, res) {
       `, [id])
     ])
 
+    const overview = overviewResult.rows[0]
+    const totalEntries = overview.totalEntries
+    const firstEntry = overview.firstEntry
 
-    const totalEntries = overviewResult.rows[0].totalEntries
-    const firstEntry = overviewResult.rows[0].firstEntry
-    const daysSinceFirst = Math.floor((new Date() - new Date(firstEntry)) / (1000 * 60 * 60 * 24))
+    const today = getCurrentDateInTimezone(timezone)
+    const daysSinceFirst = firstEntry ? Math.floor((new Date(today - new Date(firstEntry)) / (1000 * 60 * 60 * 24))) : 0
+
     const totalWeeks = Math.ceil(daysSinceFirst / 7) || 1
     const averagePerWeek = (totalEntries / totalWeeks).toFixed(1)
-    const streak = calculateStreak(entryDatesResult.rows)
+
+    const streak = calculateStreak(entryDatesResult.rows, timezone)
     const totalDaysLogged = entryDatesResult.rows.length
-    const percentageLogged = ((totalDaysLogged / daysSinceFirst) * 100).toFixed(1)
+    const percentageLogged = daysSinceFirst > 0 ? ((totalDaysLogged / daysSinceFirst) * 100).toFixed(1) : 0
+
+    const lastLoggedActivity = lastLoggedEntry.rows[0]
+    if (lastLoggedEntry?.lastEntry) {
+      lastLoggedActivity.lastEntryRelative = formatRelativeDateInTimezone(lastLoggedActivity.lastEntry, timezone)
+    }
 
     return res.send({
       success: true,
       data: {
-        overview: overviewResult.rows[0],
+        overview,
         mostTrackedActivity: mostEntries.rows[0],
-        lastLoggedActivity: lastLoggedEntry.rows[0],
+        lastLoggedActivity,
         activityCounts: activeAndInactiveCount.rows[0],
         weeklyEntries: weeklyEntries.rows[0].weeklyEntries,
         monthlyEntries: monthlyEntries.rows[0].monthlyEntries,

@@ -2,6 +2,7 @@ import { CreateAndLog, UpdateAndLog, DeleteAndLog, getGenericById, getUserGroupR
 import pg from "../../pg-cli.js";
 import { Logger } from "../../shared/logger.js";
 import { calculateStreak, calculateLongestStreak } from "../../shared/utils.js";
+import { getCurrentDateInTimezone, getDaysAgoInTimezone, getStartOfLastMonthInTimezone, getStartOfLastWeekInTimezone, getStartOfMonthInTimezone, getStartOfWeekInTimezone } from "../../shared/timezone.js";
 
 export async function getActivityBasic(req, res) {
   try {
@@ -109,11 +110,21 @@ export async function getActivityStats(req, res) {
       throw new Error("Invalid user")
     }
 
+    const timezone = res.locals.userTimezone
+
     const { id } = req.body
 
     if (!id) {
       throw new Error("Activity id required")
     }
+
+    const weekStart = getStartOfWeekInTimezone(timezone)
+    const lastWeekStart = getStartOfLastWeekInTimezone(timezone)
+    const monthStart = getStartOfMonthInTimezone(timezone)
+    const lastMonthStart = getStartOfLastMonthInTimezone(timezone)
+    const today = getCurrentDateInTimezone(timezone)
+
+
 
     const [overviewResult, metricStats, comparisonResult, entryDatesResult, recentActivityResult, goalsResult] = await Promise.all([
       pg.query(`
@@ -151,15 +162,15 @@ export async function getActivityStats(req, res) {
 
       pg.query(`
         SELECT
-          COUNT(*) FILTER (WHERE "entryDate" >= DATE_TRUNC('week', CURRENT_DATE)) as "thisWeekEntries",
-          COUNT(*) FILTER (WHERE "entryDate" >= DATE_TRUNC('week', CURRENT_DATE - INTERVAL '1 week')
-                            AND "entryDate" < DATE_TRUNC('week', CURRENT_DATE)) as "lastWeekEntries",
-          COUNT(*) FILTER (WHERE "entryDate" >= DATE_TRUNC('month', CURRENT_DATE)) as "thisMonthEntries",
-          COUNT(*) FILTER (WHERE "entryDate" >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL '1 month')
-                            AND "entryDate" < DATE_TRUNC('month', CURRENT_DATE)) as "lastMonthEntries"
+          COUNT(*) FILTER (WHERE "entryDate" >= $2) as "thisWeekEntries",
+          COUNT(*) FILTER (WHERE "entryDate" >= $3
+                            AND "entryDate" < $2) as "lastWeekEntries",
+          COUNT(*) FILTER (WHERE "entryDate" >= $4) as "thisMonthEntries",
+          COUNT(*) FILTER (WHERE "entryDate" >= $5
+                            AND "entryDate" < $4) as "lastMonthEntries"
         FROM "ProgressEntry"
         WHERE "activityId" = $1
-      `, [id]),
+      `, [id, weekStart, lastWeekStart, monthStart, lastMonthStart]),
 
       pg.query(`
         SELECT DISTINCT "entryDate"::date as "entryDate"
@@ -206,10 +217,10 @@ export async function getActivityStats(req, res) {
             WHERE pm."metricId" = g."metricId"
             AND pe."activityId" = $1
             AND pe."entryDate" >= g."startDate"
-            AND pe."entryDate" <= LEAST(g."endDate", CURRENT_DATE)
+            AND pe."entryDate" <= LEAST(g."endDate", $2::date)
           ) as "currentProgress",
-          EXTRACT(DAYS FROM AGE(CURRENT_DATE, g."startDate")) as "daysElapsed",
-          GREATEST(0, EXTRACT(DAYS FROM AGE(g."endDate", CURRENT_DATE))) as "daysRemaining",
+          EXTRACT(DAYS FROM AGE($2::date, g."startDate")) as "daysElapsed",
+          GREATEST(0, EXTRACT(DAYS FROM AGE(g."endDate", $2::date))) as "daysRemaining",
           EXTRACT(DAYS FROM AGE(g."endDate", g."startDate")) as "totalDays",
           (
             SELECT MAX(pe."entryDate")
@@ -225,7 +236,7 @@ export async function getActivityStats(req, res) {
         WHERE g."activityId" = $1
         AND g."isActive" = true
         ORDER BY g."endDate" ASC
-      `, [id])
+      `, [id, today])
     ]);
 
 
@@ -264,10 +275,10 @@ export async function getActivityStats(req, res) {
         }
       })
     }
-    const daysSinceFirst = Math.floor((new Date() - new Date(firstEntry)) / (1000 * 60 * 60 * 24))
+    const daysSinceFirst = Math.floor((new Date(today) - new Date(firstEntry)) / (1000 * 60 * 60 * 24))
     const totalWeeks = Math.ceil(daysSinceFirst / 7) || 1
     const averagePerWeek = parseFloat((totalEntries / totalWeeks).toFixed(1))
-    const currentStreak = calculateStreak(entryDatesResult.rows)
+    const currentStreak = calculateStreak(entryDatesResult.rows, timezone)
     const longestStreak = calculateLongestStreak(entryDatesResult.rows)
     const totalDaysLogged = entryDatesResult.rows.length
     const engagementRate = parseFloat(((totalDaysLogged / daysSinceFirst) * 100).toFixed(1))

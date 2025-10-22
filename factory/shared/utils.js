@@ -1,32 +1,32 @@
-export function calculateStreak(dateRows) {
+import { getCurrentDateInTimezone, getDaysAgoInTimezone } from "./timezone"
+
+export function calculateStreak(dateRows, timezone) {
   if (dateRows.length === 0) return 0
 
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-
-  const yesterday = new Date(today)
-  yesterday.setDate(yesterday.getDate() - 1)
+  const today = getCurrentDateInTimezone(timezone)
+  const yesterday = getDaysAgoInTimezone(1, timezone)
 
   const entryDates = dateRows.map(row => {
-    const date = new Date(row.entryDate)
-    date.setHours(0, 0, 0, 0)
-    return date.getTime()
+    return row.entryDate instanceof Date
+      ? row.entryDate.toISOString().split('T')[0]
+      : row.entryDate
   })
 
-  const todayTime = today.getTime()
-  const yesterdayTime = yesterday.getTime()
-
-  if (entryDates[0] !== todayTime && entryDates[0] !== yesterdayTime) {
+  if (entryDates[0] !== today && entryDates[0] !== yesterday) {
     return 0
   }
 
   let streak = 1
-  let expectedNext = entryDates[0] - (24 * 60 * 60 * 1000)
+  let expectedNext = entryDates[0]
 
   for (let i = 1; i < entryDates.length; i++) {
-    if (entryDates[i] === expectedNext) {
+    const prevDate = new Date(expectedNext)
+    prevDate.setDate(prevDate.getDate() - 1)
+    const expectedDate = prevDate.toISOString().split('T')[0]
+
+    if (entryDates[i] === expectedDate) {
       streak++
-      expectedNext -= (24 * 60 * 60 * 1000)
+      expectedNext = expectedDate
     } else {
       break
     }
@@ -39,16 +39,18 @@ export function calculateLongestStreak(dateRows) {
   if (dateRows.length === 0) return 0
 
   const entryDates = dateRows.map(row => {
-    const date = new Date(row.entryDate)
-    date.setHours(0, 0, 0, 0)
-    return date.getTime()
+    return row.entryDate instanceof Date
+      ? row.entryDate.toISOString().split('T')[0]
+      : row.entryDate
   })
 
   let longestStreak = 1
   let currentStreak = 1
 
   for (let i = 1; i < entryDates.length; i++) {
-    const expectedPrevious = entryDates[i - 1] - (24 * 60 * 60 * 1000)
+    const currentDate = new Date(entryDates[i - 1])
+    currentDate.setDate(currentDate.getDate() - 1)
+    const expectedPrevious = currentDate.toISOString().split('T')[0]
 
     if (entryDates[i] === expectedPrevious) {
       currentStreak++
@@ -59,16 +61,4 @@ export function calculateLongestStreak(dateRows) {
   }
 
   return Math.max(longestStreak, currentStreak)
-}
-
-export function formatRelativeDate(date) {
-  const today = new Date()
-  const entryDate = new Date(date)
-  const diffDays = Math.floor((today - entryDate) / (1000 * 60 * 60 * 24))
-
-  if (diffDays === 0) return "Today"
-  if (diffDays === 1) return "Yesterday"
-  if (diffDays < 7) return `${diffDays} days ago`
-
-  return entryDate.toISOString().split("T")[0]
 }

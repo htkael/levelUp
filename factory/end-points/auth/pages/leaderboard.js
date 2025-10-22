@@ -1,12 +1,15 @@
 import pg from "../../../pg-cli.js";
 import { getUserGroupRole } from "../../../shared/dbFuncs.js";
 import { Logger } from "../../../shared/logger.js";
+import { getStartOfMonthInTimezone, getStartOfWeekInTimezone } from "../../../shared/timezone.js";
 
 
 export async function getGroupLeaderboard(req, res) {
   try {
     const user = res?.locals?.user
     const { groupId, activityId, metricId, period } = req.body
+
+    const timezone = res.locals.userTimezone
 
     if (!groupId) {
       throw new Error("Group id required")
@@ -69,12 +72,16 @@ export async function getGroupLeaderboard(req, res) {
     }
 
     if (period && period !== 'all') {
-      const periodMap = {
-        week: "DATE_TRUNC('week', CURRENT_DATE)",
-        month: "DATE_TRUNC('month', CURRENT_DATE)"
+      paramCount++
+      let periodStart
+      if (period === "week") {
+        periodStart = getStartOfWeekInTimezone(timezone)
+      } else if (period === "month") {
+        periodStart = getStartOfMonthInTimezone(timezone)
       }
       whereClause += `
-      AND pe."entryDate" >= ${periodMap[period]}`
+      AND pe."entryDate" >= $${paramCount}`
+      vals.push(periodStart)
     }
 
     const groupByClause = `

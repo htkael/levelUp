@@ -1,8 +1,8 @@
 import client from "../../../pg-cli.js";
 import { getUserGroupRole } from "../../../shared/dbFuncs.js";
 import { Logger } from "../../../shared/logger.js";
-import { formatRelativeDateInTimezone, getCurrentDateInTimezone, getStartOfWeekInTimezone } from "../../../shared/timezone.js";
-import { calculateStreak } from "../../../shared/utils.js";
+import { getStartOfMonthInTimezone, getStartOfWeekInTimezone } from "../../../shared/timezone.js";
+import { calculateStreak, formatRelativeDate } from "../../../shared/utils.js";
 
 export async function getDashStats(req, res) {
   const pg = await client.connect()
@@ -10,18 +10,14 @@ export async function getDashStats(req, res) {
   try {
     const user = res?.locals?.user
 
-    const timezone = res.locals.userTimezone
-    const weekStart = getStartOfWeekInTimezone(timezone)
-    const today = getCurrentDateInTimezone(timezone)
-
     const [statsResult, recentActivitiesResult, categoriesResult, entryDatesResult, goalsResult] = await Promise.all([
       pg.query(`
         SELECT
           (SELECT COUNT(*) FROM "Category" WHERE "userId" = $1) as "totalCategories",
           (SELECT COUNT(*) FROM "ProgressEntry" WHERE "userId" = $1
-          AND "entryDate" >= $2) as "weeklyActivities",
+          AND "entryDate" >= DATE_TRUNC('week', CURRENT_DATE)) as "weeklyActivities",
           (SELECT COUNT(*) FROM "ProgressEntry" WHERE "userId" = $1) as "totalEntries"
-      `, [user.id, weekStart]),
+      `, [user.id]),
 
       pg.query(`
         SELECT
@@ -82,10 +78,10 @@ export async function getDashStats(req, res) {
               WHERE pm."metricId" = g."metricId"
               AND pe."activityId" = g."activityId"
               AND pe."entryDate" >= g."startDate"
-              AND pe."entryDate" <= LEAST(g."endDate", $2::date)
+              AND pe."entryDate" <= LEAST(g."endDate", CURRENT_DATE)
             ) as "currentProgress",
-            EXTRACT(DAYS FROM AGE($2::date, g."startDate")) as "daysElapsed",
-            GREATEST(0, EXTRACT(DAYS FROM AGE(g."endDate", $2::date))) as "daysRemaining",
+            EXTRACT(DAYS FROM AGE(CURRENT_DATE, g."startDate")) as "daysElapsed",
+            GREATEST(0, EXTRACT(DAYS FROM AGE(g."endDate", CURRENT_DATE))) as "daysRemaining",
             EXTRACT(DAYS FROM AGE(g."endDate", g."startDate")) as "totalDays",
             (
               SELECT MAX(pe."entryDate")
@@ -104,10 +100,10 @@ export async function getDashStats(req, res) {
         AND g."isActive" = true
         ORDER BY g."endDate" ASC
         LIMIT 5
-      `, [user.id, today])
+      `, [user.id])
     ])
 
-    const currentStreak = calculateStreak(entryDatesResult.rows, timezone)
+    const currentStreak = calculateStreak(entryDatesResult.rows)
     const stats = statsResult.rows[0]
     const goals = goalsResult.rows.map((goal) => ({
       ...goal,
@@ -140,7 +136,7 @@ export async function getDashStats(req, res) {
         name: cat.name,
         color: cat.color,
         activities: parseInt(cat.activities),
-        lastEntry: cat.lastEntry ? formatRelativeDateInTimezone(cat.lastEntry, timezone) : "No entries"
+        lastEntry: cat.lastEntry ? formatRelativeDate(cat.lastEntry) : "No entries"
       })),
       goals
     })
@@ -174,7 +170,7 @@ export async function getGroupDashStats(req, res) {
     }
 
     const weekStart = getStartOfWeekInTimezone(timezone)
-    const today = getCurrentDateInTimezone(timezone)
+    const monthStart = getStartOfMonthInTimezone(timezone)
 
     const [statsResult, recentActivitiesResult, categoriesResult, entryDatesResult, goalsResult, leaderboardResult] = await Promise.all([
       client.query(`
@@ -193,7 +189,7 @@ export async function getGroupDashStats(req, res) {
             JOIN "Activity" a ON a.id = pe."activityId"
             WHERE a."groupId" = $1
           ) as "totalEntries"
-      `, [groupId, weekStart]),
+      `, [groupId]),
 
       client.query(`
         SELECT
@@ -258,10 +254,10 @@ export async function getGroupDashStats(req, res) {
               WHERE pm."metricId" = g."metricId"
               AND pe."activityId" = g."activityId"
               AND pe."entryDate" >= g."startDate"
-              AND pe."entryDate" <= LEAST(g."endDate", $2::date)
+              AND pe."entryDate" <= LEAST(g."endDate", CURRENT_DATE)
             ) as "currentProgress",
-            EXTRACT(DAYS FROM AGE($2::date, g."startDate")) as "daysElapsed",
-            GREATEST(0, EXTRACT(DAYS FROM AGE(g."endDate", $2::date))) as "daysRemaining",
+            EXTRACT(DAYS FROM AGE(CURRENT_DATE, g."startDate")) as "daysElapsed",
+            GREATEST(0, EXTRACT(DAYS FROM AGE(g."endDate", CURRENT_DATE))) as "daysRemaining",
             EXTRACT(DAYS FROM AGE(g."endDate", g."startDate")) as "totalDays",
             (
               SELECT MAX(pe."entryDate")
@@ -280,7 +276,7 @@ export async function getGroupDashStats(req, res) {
         AND g."isActive" = true
         ORDER BY g."endDate" ASC
         LIMIT 5
-      `, [groupId, today]),
+      `, [groupId]),
 
       client.query(`
         SELECT
@@ -300,7 +296,7 @@ export async function getGroupDashStats(req, res) {
 
     ])
 
-    const currentStreak = calculateStreak(entryDatesResult.rows, timezone)
+    const currentStreak = calculateStreak(entryDatesResult.rows)
     const stats = statsResult.rows[0]
     const goals = goalsResult.rows.map((goal) => ({
       ...goal,
@@ -336,7 +332,7 @@ export async function getGroupDashStats(req, res) {
         name: cat.name,
         color: cat.color,
         activities: parseInt(cat.activities),
-        lastEntry: cat.lastEntry ? formatRelativeDateInTimezone(cat.lastEntry, timezone) : "No entries"
+        lastEntry: cat.lastEntry ? formatRelativeDate(cat.lastEntry) : "No entries"
       })),
       goals,
       leaderboard

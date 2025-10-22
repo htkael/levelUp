@@ -2,6 +2,7 @@ import { CreateAndLog, UpdateAndLog, DeleteAndLog, getGenericById } from "../../
 import pg from "../../pg-cli.js";
 import format from "pg-format";
 import { Logger } from "../../shared/logger.js";
+import { getCurrentDateInTimezone, parseUserDate } from "../../shared/timezone.js";
 
 export async function getProgressEntry(req, res) {
   try {
@@ -118,7 +119,7 @@ export async function listProgressEntryCalendar(req, res) {
     if (!user) {
       throw new Error("Invalid user")
     }
-    const { activityId, month } = req.body  // month format: "2025-10"
+    const { activityId, month } = req.body
 
     let query = `
       SELECT
@@ -142,8 +143,8 @@ export async function listProgressEntryCalendar(req, res) {
 
     if (month) {
       paramCount++
-      query += ` AND DATE_TRUNC('month', pe."entryDate") = DATE_TRUNC('month', $${paramCount}::date)`
-      vals.push(`${month}-01`)
+      query += ` AND pe."entryDate"::text LIKE $${paramCount}`
+      vals.push(`${month}%`)
     }
 
     query += ` ORDER BY pe."entryDate" DESC`
@@ -180,6 +181,8 @@ export async function createProgressEntry(req, res) {
       throw new Error("Invalid user")
     }
 
+    const timezone = res.locals.userTimezone
+
     const { progressEntry } = req.body
 
     if (!(progressEntry?.entryDate && progressEntry?.activityId)) {
@@ -190,7 +193,9 @@ export async function createProgressEntry(req, res) {
 
 
     const newProgressEntry = {
-      entryDate: progressEntry.entryDate,
+      entryDate: progressEntry.entryDate
+        ? parseUserDate(progressEntry.entryDate, timezone)
+        : parseUserDate(getCurrentDateInTimezone(timezone), timezone),
       activityId: progressEntry.activityId,
       userId: user.id,
       updatedAt: new Date()
@@ -243,6 +248,8 @@ export async function updateProgressEntry(req, res) {
       throw new Error("Invalid user")
     }
 
+    const timezone = res.locals.userTimezone
+
     const { progressEntry } = req.body
 
     if (!(progressEntry?.entryDate && progressEntry?.activityId)) {
@@ -260,6 +267,9 @@ export async function updateProgressEntry(req, res) {
 
     const newProgressEntry = {
       ...progressEntry,
+      entryDate: progressEntry.entryDate
+        ? parseUserDate(progressEntry.entryDate, timezone)
+        : parseUserDate(getCurrentDateInTimezone(timezone), timezone),
       updatedAt: new Date()
     }
 

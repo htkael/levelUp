@@ -94,6 +94,7 @@ export async function authorize(req, res, next) {
     }
 
     res.locals.user = user
+    res.locals.userTimezone = user.timezone
 
     next()
   } catch (error) {

@@ -1,5 +1,6 @@
 import { CreateAndLog, DeleteAndLog, getGenericById, getUserGroupRole, UpdateAndLog } from "../../shared/dbFuncs.js"
 import { Logger } from "../../shared/logger.js"
+import { getCurrentDateInTimezone } from "../../shared/timezone.js"
 
 export async function listGoals(req, res) {
   try {
@@ -7,6 +8,10 @@ export async function listGoals(req, res) {
     if (!user) {
       throw new Error("Invalid user")
     }
+
+    const timezone = res.locals.userTimezone
+
+    const today = getCurrentDateInTimezone(timezone)
 
     const { activityId, isActive, groupId } = req.body
 
@@ -25,10 +30,10 @@ export async function listGoals(req, res) {
             WHERE pm."metricId" = g."metricId"
             AND pe."activityId" = g."activityId"
             AND pe."entryDate" >= g."startDate"
-            AND pe."entryDate" <= LEAST(g."endDate", CURRENT_DATE)
+            AND pe."entryDate" <= LEAST(g."endDate", $2::date)
           ) as "currentProgress",
-          EXTRACT(DAYS FROM AGE(CURRENT_DATE, g."startDate")) as "daysElapsed",
-          GREATEST(0, EXTRACT(DAYS FROM AGE(g."endDate", CURRENT_DATE))) as "daysRemaining",
+          EXTRACT(DAYS FROM AGE($2::date, g."startDate")) as "daysElapsed",
+          GREATEST(0, EXTRACT(DAYS FROM AGE(g."endDate", $2::date))) as "daysRemaining",
           EXTRACT(DAYS FROM AGE(g."endDate", g."startDate)) as "totalDays",
           (
             SELECT MAX(pe."entryDate")
@@ -48,8 +53,8 @@ export async function listGoals(req, res) {
       ))
     `
 
-    const vals = [user.id]
-    let paramCount = 1
+    const vals = [user.id, today]
+    let paramCount = 2
 
     if (activityId) {
       paramCount++
@@ -93,6 +98,10 @@ export async function getGoal(req, res) {
       throw new Error("Invalid user")
     }
 
+    const timezone = res.locals.userTimezone
+
+    const today = getCurrentDateInTimezone(timezone)
+
     const { id } = req.body
 
     if (!id) {
@@ -114,10 +123,10 @@ export async function getGoal(req, res) {
             WHERE pm."metricId" = g."metricId"
             AND pe."activityId" = g."activityId"
             AND pe."entryDate" >= g."startDate"
-            AND pe."entryDate" <= LEAST(g."endDate", CURRENT_DATE)
+            AND pe."entryDate" <= LEAST(g."endDate", $2::date)
           ) as "currentProgress",
-          EXTRACT(DAYS FROM AGE(CURRENT_DATE, g."startDate")) as "daysElapsed",
-          GREATEST(0, EXTRACT(DAYS FROM AGE(g."endDate", CURRENT_DATE))) as "daysRemaining",
+          EXTRACT(DAYS FROM AGE($2::date, g."startDate")) as "daysElapsed",
+          GREATEST(0, EXTRACT(DAYS FROM AGE(g."endDate", $2::date))) as "daysRemaining",
           EXTRACT(DAYS FROM AGE(g."endDate", g."startDate)) as "totalDays",
           (
             SELECT MAX(pe."entryDate")
@@ -134,7 +143,7 @@ export async function getGoal(req, res) {
       LEFT JOIN "ActivityMetric" am ON g."metricId" = am.id
       WHERE g.id = $1
     `
-    let g = (await pg.query(query, [id])).rows
+    let g = (await pg.query(query, [id, today])).rows
 
     if (g?.length !== 1) {
       throw new Error("Goal not found")
@@ -170,25 +179,6 @@ export async function getGoal(req, res) {
     return res.send({ success: false, error: error.message })
   }
 }
-
-//model Goal {
-//  id           Int            @id @default(autoincrement())
-//  createdAt    DateTime       @default(now())
-//  updatedAt    DateTime       @updatedAt
-//  targetValue  Decimal        @db.Decimal(10, 2)
-//  targetPeriod TargetPeriod
-//  startDate    DateTime       @db.Date
-//  endDate      DateTime       @db.Date
-//  isActive     Boolean        @default(true)
-//  user         User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
-//  userId       Int?
-//  group        Group?         @relation(fields: [groupId], references: [id], onDelete: Cascade)
-//  groupId      Int?
-//  activity     Activity       @relation(fields: [activityId], references: [id], onDelete: Cascade)
-//  activityId   Int
-//  metric       ActivityMetric @relation(fields: [metricId], references: [id], onDelete: Cascade)
-//  metricId     Int
-//}
 
 
 export async function createGoal(req, res) {
