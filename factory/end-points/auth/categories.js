@@ -175,16 +175,21 @@ export async function getCategoryStats(req, res) {
     const firstEntry = overview.firstEntry
 
     const today = getCurrentDateInTimezone(timezone)
+    Logger.debug("Today and first entry", { today, firstEntry })
     const daysSinceFirst = firstEntry ? Math.floor((new Date(today) - new Date(firstEntry)) / (1000 * 60 * 60 * 24)) : 0
+    Logger.debug("Days since first", { daysSinceFirst })
 
     const totalWeeks = Math.ceil(daysSinceFirst / 7) || 1
     const averagePerWeek = (totalEntries / totalWeeks).toFixed(1)
 
     const streak = calculateStreak(entryDatesResult.rows, timezone)
     const totalDaysLogged = entryDatesResult.rows.length
+    Logger.debug("total days logged", { totalDaysLogged })
     const percentageLogged = daysSinceFirst > 0 ? ((totalDaysLogged / daysSinceFirst) * 100).toFixed(1) : 0
+    Logger.debug("percentageLogged", { percentageLogged })
 
     const lastLoggedActivity = lastLoggedEntry.rows[0]
+    Logger.debug("last logged", { lastLoggedActivity })
     if (lastLoggedEntry?.lastEntry) {
       lastLoggedActivity.lastEntryRelative = formatRelativeDateInTimezone(lastLoggedActivity.lastEntry, timezone)
     }

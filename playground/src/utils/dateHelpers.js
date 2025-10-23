@@ -9,7 +9,7 @@ import {
   isToday,
   isYesterday,
   parse,
-  formatDistanceToNow
+  formatDistanceToNowStrict
 } from 'date-fns'
 
 export const formatDate = (date, formatStr = "MMM d, yyyy") => {
@@ -32,10 +32,11 @@ export const formatRelativeDate = (dateString) => {
   const dateOnly = dateString.split('T')[0]
 
   const date = parse(dateOnly, 'yyyy-MM-dd', new Date())
+  console.log("date", { dateString, dateOnly, date })
 
   if (isToday(date)) return "Today"
   if (isYesterday(date)) return "Yesterday"
-  return formatDistanceToNow(date, { addSuffix: true })
+  return formatDistanceToNowStrict(date, { addSuffix: true, unit: 'day', roundingMethod: 'floor' })
 }
 
 export const formatDateForInput = (date = new Date()) => {

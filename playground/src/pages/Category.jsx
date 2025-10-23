@@ -66,6 +66,8 @@ export const Category = () => {
   const activeActivities = category.activities?.filter(a => a.isActive) || []
   const inactiveActivities = category.activities?.filter(a => !a.isActive) || []
 
+  console.log("Stats", stats)
+
 
   return (
     <div className="space-y-6 m-6">
