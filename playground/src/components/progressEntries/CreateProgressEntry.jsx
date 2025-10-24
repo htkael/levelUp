@@ -119,7 +119,7 @@ export const CreateProgressEntry = ({ isOpen, onClose, activityId = null, initia
       onSubmit={handleSubmit}
       error={formError}
       submitDisabled={isLoading || isPending || isActLoading}
-      submitText={isPending ? "Saving..." : initialData?.id ? "Save" : "Create Activity"}
+      submitText={isPending ? "Saving..." : initialData?.id ? "Save" : "Create Progress Entry"}
     >
       {!activityId && (
         <SelectInput

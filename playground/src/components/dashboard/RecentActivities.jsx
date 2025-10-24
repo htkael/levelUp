@@ -1,6 +1,24 @@
 import { formatRelativeDate } from "../../utils/dateHelpers.js"
 
 export const RecentActivities = ({ recentActivities }) => {
+  const formatMetrics = (metricString) => {
+    if (!metricString) return []
+
+    return metricString.split(',').map(m => {
+      const parts = m.trim().split(':')
+      if (parts.length === 2) {
+        const name = parts[0].trim()
+        const valueWithUnit = parts[1].trim().split(' ')
+        return {
+          name,
+          value: valueWithUnit[0],
+          unit: valueWithUnit.slice(1).join(' ')
+        }
+      }
+      return null
+    }).filter(Boolean)
+  }
+
   return (
     <div className="card bg-base-100 shadow-sm">
       <div className="card-body">
@@ -8,20 +26,37 @@ export const RecentActivities = ({ recentActivities }) => {
         <div className="space-y-3">
           {recentActivities && recentActivities.length > 0 ? (
             <>
-              {recentActivities.map(activity => (
-                <div key={activity.id} className="flex items-center justify-between p-2 hover:bg-base-200 rounded">
-                  <div>
-                    <div className="font-medium">{activity.activity}</div>
-                    <div className="text-sm text-base-content/70">
-                      {activity.category} • {activity.metric}
+              {recentActivities.map(activity => {
+                const metrics = formatMetrics(activity.metric)
+                return (
+                  <div key={activity.id} className="p-3 hover:bg-base-200 rounded-lg transition-colors">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1">
+                        <div className="font-semibold">{activity.activity}</div>
+                        <div className="text-sm text-base-content/60">
+                          {activity.category}
+                        </div>
+                      </div>
+                      <div className="text-xs text-base-content/50">
+                        {formatRelativeDate(activity.date)}
+                      </div>
                     </div>
+
+                    {/* Metrics as badges */}
+                    {metrics.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {metrics.map((metric, idx) => (
+                          <div key={idx} className="badge badge-outline badge-sm gap-1">
+                            <span className="font-medium">{metric.value}</span>
+                            <span className="text-base-content/60">{metric.unit}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  <div className="text-xs text-base-content/50">
-                    {formatRelativeDate(activity.date)}
-                  </div>
-                </div>
-              ))}
-              <button className="btn btn-ghost btn-sm w-full">View All</button>
+                )
+              })}
+              <button className="btn btn-ghost btn-sm w-full mt-2">View All Activities</button>
             </>
           ) : (
             <div className="flex flex-col items-center justify-center py-8 text-center">
