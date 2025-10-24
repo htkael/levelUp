@@ -4,9 +4,11 @@ import { useDeleteActivity } from "../../hooks/mutations/useDeleteActivity"
 import { useState } from "react"
 import { UpdateActivity } from "./UpdateActivity.jsx"
 import { useToggleActivity } from "../../hooks/mutations/useToggleActivity.js"
+import { CreateProgressEntry } from "../progressEntries/CreateProgressEntry.jsx"
 
 export const ActivityCard = ({ activity }) => {
   const [updateOpen, setUpdateOpen] = useState(false)
+  const [createEntryOpen, setCreateEntryOpen] = useState(false)
   const { mutate: deleteActivity, isPending: isDeletePending } = useDeleteActivity()
   const { mutate: toggleActivity, isPending: isTogglePending } = useToggleActivity()
 
@@ -128,7 +130,7 @@ export const ActivityCard = ({ activity }) => {
 
         {/* Action Buttons */}
         <div className="card-actions justify-end mt-4 gap-2">
-          <button className="btn btn-primary btn-sm">
+          <button className="btn btn-primary btn-sm" onClick={() => setCreateEntryOpen(true)}>
             Log Progress
           </button>
           <Link
@@ -143,6 +145,11 @@ export const ActivityCard = ({ activity }) => {
         isOpen={updateOpen}
         onClose={handleCloseUpdate}
         activity={activity}
+      />
+      <CreateProgressEntry
+        isOpen={createEntryOpen}
+        activityId={activity.id}
+        onClose={() => setCreateEntryOpen(false)}
       />
     </div>
   )

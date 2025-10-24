@@ -5,13 +5,16 @@ import { useActivities } from "../../hooks/useActivities.js"
 import { FormModal } from "../forms/FormModal"
 import { CheckboxInput, DateInput, NumberInput, SelectInput, TextArea } from "../forms/FormInputs"
 import { getTodayLocal } from "../../utils/dateHelpers.js"
+import { useUpdateProgressEntry } from "../../hooks/mutations/useUpdateProgressEntry.js"
 
-export const CreateProgressEntry = ({ isOpen, onClose, activityId = null }) => {
-  const initialData = {
-    activityId: activityId ? activityId : null,
-    entryDate: getTodayLocal(),
-    notes: "",
-    metrics: []
+export const CreateProgressEntry = ({ isOpen, onClose, activityId = null, initialData }) => {
+  if (!initialData) {
+    initialData = {
+      activityId: activityId ? activityId : null,
+      entryDate: getTodayLocal(),
+      notes: "",
+      metrics: []
+    }
   }
 
   const filters = {
@@ -21,9 +24,13 @@ export const CreateProgressEntry = ({ isOpen, onClose, activityId = null }) => {
 
   const [formData, setFormData] = useState(initialData)
 
+  if (initialData?.id) {
+  }
+
   const { data: activities, isLoading: isActLoading, error: activityError } = useActivities(filters)
   const { data: metrics, isLoading, error } = useActivityMetrics(formData.activityId)
-  const { mutate: createProgressEntry, isPending, error: createError } = useCreateProgressEntry()
+  const { mutate: createProgressEntry, isPending: isCreatePending, error: createError } = useCreateProgressEntry()
+  const { mutate: updateProgressEntry, isPending: isUpdatePending, error: updateError } = useUpdateProgressEntry()
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -64,12 +71,32 @@ export const CreateProgressEntry = ({ isOpen, onClose, activityId = null }) => {
   }
 
   const handleSubmit = (formData) => {
-    createProgressEntry(formData, {
-      onSuccess: () => {
-        setFormData(initialData)
-        onClose()
+    if (!initialData.id) {
+      createProgressEntry(formData, {
+        onSuccess: () => {
+          setFormData(initialData)
+          onClose()
+        }
+      })
+    } else {
+      const cleanedData = {
+        id: formData.id,
+        notes: formData.notes,
+        activityId: formData.activityId,
+        entryDate: formData.entryDate,
+        metrics: formData.metrics.map((m) => {
+          return {
+            value: m.value,
+            metricId: m.metricId
+          }
+        })
       }
-    })
+      updateProgressEntry(cleanedData, {
+        onSuccess: () => {
+          onClose()
+        }
+      })
+    }
   }
 
   const getMetricValue = (metricId) => {
@@ -77,12 +104,13 @@ export const CreateProgressEntry = ({ isOpen, onClose, activityId = null }) => {
     return metric ? metric.value : ""
   }
 
-  const formError = error || createError || activityError
+  const formError = error || createError || activityError || updateError
+  const isPending = isCreatePending || isUpdatePending
 
 
   return (
     <FormModal
-      formHeader="Create Progress Entry"
+      formHeader={initialData?.id ? "Edit Progress Entry" : "Create Progress Entry"}
       isOpen={isOpen}
       onClose={onClose}
       formData={formData}
@@ -91,7 +119,7 @@ export const CreateProgressEntry = ({ isOpen, onClose, activityId = null }) => {
       onSubmit={handleSubmit}
       error={formError}
       submitDisabled={isLoading || isPending || isActLoading}
-      submitText={isPending ? "Creating..." : "Create Activity"}
+      submitText={isPending ? "Saving..." : initialData?.id ? "Save" : "Create Activity"}
     >
       {!activityId && (
         <SelectInput

@@ -17,18 +17,33 @@ export async function getProgressEntry(req, res) {
       throw new Error("id required")
     }
 
-    let entry = await getGenericById("ProgressEntry", entryId)
+    let entryArray = (await pg.query(`
+      SELECT
+        pe.*,
+        a."name" as "activityName",
+        a.id as "activityId",
+        c."name" as "categoryName",
+        c."color" as "categoryColor"
+      FROM "ProgressEntry" pe
+      LEFT JOIN "Activity" a ON pe."activityId" = a.id
+      LEFT JOIN "Category" c ON a."categoryId" = c.id
+      WHERE pe.id = $1
+    `, [entryId])).rows
 
-    if (!entry) {
+    if (entryArray.length < 1) {
       throw new Error("Entry not found")
     }
+
+    let entry = entryArray[0]
 
     const metrics = (await pg.query(`
       SELECT
         a."metricName" as "metricName",
         a."metricType" as "metricType",
         pm."value" as "value",
-        a."unit" as "unit",
+        pm.id as id,
+        pm."metricId" as "metricId",
+        a."unit" as "unit"
         FROM "ProgressMetric" pm
         LEFT JOIN "ActivityMetric" a ON pm."metricId" = a.id
         WHERE pm."entryId" = $1
@@ -267,7 +282,8 @@ export async function updateProgressEntry(req, res) {
 
 
     const newProgressEntry = {
-      ...progressEntry,
+      ...original,
+      notes: progressEntry?.notes ? progressEntry.notes : original.notes,
       entryDate: progressEntry.entryDate
         ? parseUserDate(progressEntry.entryDate, timezone)
         : parseUserDate(getCurrentDateInTimezone(timezone), timezone),
@@ -283,23 +299,15 @@ export async function updateProgressEntry(req, res) {
     const metrics = progressEntry?.metrics
 
     if (metrics && metrics.length > 0) {
-      metrics.forEach(metric => {
-        if (!(metric?.metricId && metric?.value !== null)) {
-          throw new Error("Metrics must have both a value and metric type")
-        }
-      });
 
-      const metricValues = metrics.map((m) => {
+      await client.query(`DELETE FROM "ProgressMetric" WHERE "entryId" = $1`, [updated.id])
+
+      const metricValues = metrics.filter((m) => m.value !== undefined && m.value !== null).map((m) => {
         return [m.value, m.metricId, updated.id]
       })
 
       const metricQuery = format(
-        `INSERT INTO "ProgressMetric" (value, "metricId", "entryId")
-         VALUES %L
-         ON CONFLICT ("entryId", "metricId")
-         DO UPDATE SET
-         value = EXCLUDED.value
-         RETURNING *`,
+        `INSERT INTO "ProgressMetric" (value, "metricId", "entryId") VALUES %L RETURNING *`,
         metricValues
       )
 

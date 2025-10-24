@@ -295,8 +295,6 @@ export const Activity = () => {
                 <ProgressEntryCard
                   entry={entry}
                   key={entry.id}
-                  onEdit={() => console.log("edit")}
-                  onDelete={() => console.log("delete")}
                 />
               ))}
             </div>

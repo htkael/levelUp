@@ -32,7 +32,6 @@ export const formatRelativeDate = (dateString) => {
   const dateOnly = dateString.split('T')[0]
 
   const date = parse(dateOnly, 'yyyy-MM-dd', new Date())
-  console.log("date", { dateString, dateOnly, date })
 
   if (isToday(date)) return "Today"
   if (isYesterday(date)) return "Yesterday"
