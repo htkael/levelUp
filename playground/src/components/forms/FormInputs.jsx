@@ -44,7 +44,7 @@ export const FormInput = ({
           onChange={handleChange}
           {...props}
         >
-          <option value="" disabled>
+          <option value="" disabled selected>
             {label}
           </option>
           {options?.map((o, i) => (

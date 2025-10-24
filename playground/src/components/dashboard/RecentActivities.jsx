@@ -1,6 +1,10 @@
+import { useState } from "react"
 import { formatRelativeDate } from "../../utils/dateHelpers.js"
+import { createPortal } from "react-dom"
+import { ProgressEntryModal } from "../progressEntries/ProgressEntryModal.jsx"
 
 export const RecentActivities = ({ recentActivities }) => {
+  const [entryId, setEntryId] = useState(null)
   const formatMetrics = (metricString) => {
     if (!metricString) return []
 
@@ -19,6 +23,8 @@ export const RecentActivities = ({ recentActivities }) => {
     }).filter(Boolean)
   }
 
+  console.log("recentActivities", recentActivities)
+
   return (
     <div className="card bg-base-100 shadow-sm">
       <div className="card-body">
@@ -29,7 +35,7 @@ export const RecentActivities = ({ recentActivities }) => {
               {recentActivities.map(activity => {
                 const metrics = formatMetrics(activity.metric)
                 return (
-                  <div key={activity.id} className="p-3 hover:bg-base-200 rounded-lg transition-colors">
+                  <div key={activity.id} className="p-3 hover:bg-base-200 rounded-lg transition-colors" onClick={() => setEntryId(activity.id)}>
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1">
                         <div className="font-semibold">{activity.activity}</div>
@@ -71,6 +77,14 @@ export const RecentActivities = ({ recentActivities }) => {
           )}
         </div>
       </div>
+      {entryId && createPortal(
+        <ProgressEntryModal
+          isOpen={!!entryId}
+          entryId={entryId}
+          onClose={() => setEntryId(null)}
+        />,
+        document.body
+      )}
     </div>
   )
 }

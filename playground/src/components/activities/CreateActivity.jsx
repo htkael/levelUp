@@ -43,7 +43,7 @@ export const CreateActivity = ({ isOpen, onClose, catId = null }) => {
         <SelectInput
           name="categoryId"
           label="Which category will this activity belong to"
-          options={isLoading ? { label: "Loading...", value: null } : categoryOptions}
+          options={isLoading ? [{ label: "Loading...", value: null }] : categoryOptions}
           required
           disabled={isPending}
         />
