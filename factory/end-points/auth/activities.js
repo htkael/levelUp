@@ -92,7 +92,7 @@ export async function listActivities(req, res) {
       LEFT JOIN "ProgressEntry" pe ON pe."activityId" = a.id
       ${filterClause}
       GROUP BY a.id, c.name, c.color
-      ORDER BY a."categoryId" DESC
+      ORDER BY a."categoryId" ASC
     `, searchValue)).rows
 
     return res.send({ success: true, activities })
