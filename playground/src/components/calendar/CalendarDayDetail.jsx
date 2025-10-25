@@ -115,7 +115,7 @@ export const CalendarDayDetail = ({ day, isOpen, onClose, onCreateEntry }) => {
                             <div className="text-lg font-bold">
                               {metric.metricType === "duration"
                                 ? `${metric.value} ${metric.unit}`
-                                : `${metric.value}${metric.unit}`
+                                : `${metric.value} ${metric.unit}`
                               }
                             </div>
                           </div>
