@@ -8,7 +8,7 @@ export const Sidebar = () => {
     { path: "/", icon: "📊", label: "Dashboard" },
     { path: "/categories", icon: "📁", label: "Categories" },
     { path: "/activities", icon: "🎯", label: "Activities" },
-    { path: "/progress/calendar", icon: "📅", label: "Calendar" },
+    { path: "/calendar", icon: "📅", label: "Calendar" },
     { path: "/goals", icon: "🏆", label: "Goals" },
     { path: "/groups", icon: "👥", label: "Groups" },
   ]

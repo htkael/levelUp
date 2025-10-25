@@ -13,6 +13,7 @@ import { ErrorBoundaryFallback } from "./components/shared/errors/ErrorBoundaryF
 import { Category } from "./pages/Category.jsx"
 import { Activities } from './pages/Activities.jsx'
 import { Activity } from './pages/Activity.jsx'
+import { Calendar } from './pages/Calendar.jsx'
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <Route path="categories/:id" element={<Category />} />
         <Route path="activities" element={<Activities />} />
         <Route path="activities/:id" element={<Activity />} />
+        <Route path="calendar" element={<Calendar />} />
       </Route>
     </Routes>
   )

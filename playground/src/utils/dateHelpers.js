@@ -50,6 +50,32 @@ export const getTodayLocal = () => {
   return formatDateForInput(new Date())
 }
 
+export const getMonthLocal = () => {
+  return format(new Date(), 'yyyy-MM')
+}
+
+export const incrementMonth = (monthStr) => {
+  const [year, month] = monthStr.split('-').map(Number)
+  if (month === 12) {
+    return `${year + 1}-01`
+  }
+  return `${year}-${String(month + 1).padStart(2, '0')}`
+}
+
+export const decrementMonth = (monthStr) => {
+  const [year, month] = monthStr.split('-').map(Number)
+  if (month === 1) {
+    return `${year - 1}-12`
+  }
+  return `${year}-${String(month - 1).padStart(2, '0')}`
+}
+
+export const formatMonthYear = (monthStr) => {
+  const [year, month] = monthStr.split('-')
+  const date = new Date(year, month - 1)
+  return format(date, 'MMMM yyyy')
+}
+
 export const isSameDay = (date1, date2) => {
   const d1 = typeof date1 === "string" ? parseLocalDate(date1) : date1
   const d2 = typeof date2 === "string" ? parseLocalDate(date2) : date2
@@ -62,7 +88,9 @@ export const getStartOfWeek = (date = new Date()) => {
 }
 
 export const getStartOfMonth = (date = new Date()) => {
+  console.log("date", date)
   const monthStart = startOfMonth(date)
+  console.log("monthStart", monthStart)
   return formatDateForInput(monthStart)
 }
 

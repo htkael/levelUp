@@ -21,6 +21,7 @@ export const useUpdateProgressEntry = () => {
       queryClient.invalidateQueries({ queryKey: ["activityStats", data.updated.activityId] })
       queryClient.invalidateQueries({ queryKey: ["activities"] })
       queryClient.invalidateQueries({ queryKey: ["dashboard"] })
+      queryClient.invalidateQueries({ queryKey: ["calendar"] })
     },
 
     onError: (error) => {

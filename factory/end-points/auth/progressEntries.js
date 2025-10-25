@@ -134,13 +134,18 @@ export async function listProgressEntryCalendar(req, res) {
     if (!user) {
       throw new Error("Invalid user")
     }
-    const { activityId, month } = req.body
+    const { activityId, categoryId, month } = req.body
+
+    if (!month) {
+      throw new Error("Month is required to list entry calendar")
+    }
 
     let query = `
       SELECT
         pe.*,
         a.name as "activityName",
-        c.name as "categoryName"
+        c.name as "categoryName",
+        c.color as "categoryColor"
       FROM "ProgressEntry" pe
       JOIN "Activity" a ON pe."activityId" = a.id
       JOIN "Category" c ON a."categoryId" = c.id
@@ -154,6 +159,12 @@ export async function listProgressEntryCalendar(req, res) {
       paramCount++
       query += ` AND pe."activityId" = $${paramCount}`
       vals.push(activityId)
+    }
+
+    if (categoryId) {
+      paramCount++
+      query += ` AND a."categoryId" = $${paramCount}`
+      vals.push(categoryId)
     }
 
     if (month) {
