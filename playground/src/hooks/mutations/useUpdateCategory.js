@@ -22,6 +22,8 @@ export const useUpdateCategory = () => {
       queryclient.invalidateQueries({ queryKey: ["category", variables.id] })
       queryclient.invalidateQueries({ queryKey: ["categoryStats", variables.id] })
       queryclient.invalidateQueries({ queryKey: ["dashboard"] })
+      queryclient.invalidateQueries({ queryKey: ["calendar"] })
+      queryclient.invalidateQueries({ queryKey: ["calendarDay"] })
     },
 
     onError: (error) => {

@@ -59,6 +59,55 @@ export async function getProgressEntry(req, res) {
   }
 }
 
+export async function getProgressEntryDayDetail(req, res) {
+  try {
+    const user = res?.locals?.user
+    if (!user) {
+      throw new Error("Invalid user")
+    }
+    const { day } = req.body
+    if (!day) {
+      throw new Error("day required")
+    }
+
+    const entries = (await pg.query(`
+      SELECT
+        pe.id,
+        pe."createdAt",
+        pe."updatedAt",
+        pe."entryDate",
+        pe.notes,
+        pe."userId",
+        pe."activityId",
+        a."name" as "activityName",
+        c."name" as "categoryName",
+        c."color" as "categoryColor",
+        JSON_AGG(
+          JSON_BUILD_OBJECT(
+            'value', pm.value,
+            'metricName', am."metricName",
+            'metricType', am."metricType",
+            'unit', am.unit
+          ) ORDER BY am."isPrimary" DESC, am.id
+        ) FILTER (WHERE pm.id IS NOT NULL) as "metrics"
+      FROM "ProgressEntry" pe
+      LEFT JOIN "Activity" a ON pe."activityId" = a.id
+      LEFT JOIN "Category" c ON a."categoryId" = c.id
+      LEFT JOIN "ProgressMetric" pm ON pm."entryId" = pe.id
+      LEFT JOIN "ActivityMetric" am ON am.id = pm."metricId"
+      WHERE pe."entryDate"::date = $1::date
+        AND pe."userId" = $2
+      GROUP BY pe.id, a.id, a.name, c.id, c.name, c.color
+      ORDER BY pe."createdAt" DESC
+    `, [day, user.id])).rows
+
+    return res.send({ success: true, data: entries })
+  } catch (error) {
+    Logger.error("Unable to get progress entry day detail", { error: error.message })
+    return res.send({ success: false, error: error.message })
+  }
+}
+
 export async function listProgressEntries(req, res) {
   try {
     const user = res?.locals?.user

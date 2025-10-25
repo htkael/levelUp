@@ -21,6 +21,8 @@ export const useUpdateActivity = () => {
       queryClient.invalidateQueries({ queryKey: ["categoryStats", data.categoryId] })
       queryClient.invalidateQueries({ queryKey: ["activity", data.id] })
       queryClient.invalidateQueries({ queryKey: ["activityStats", data.id] })
+      queryClient.invalidateQueries({ queryKey: ["calendar"] })
+      queryClient.invalidateQueries({ queryKey: ["calendarDay"] })
     },
 
     onError: (error) => {

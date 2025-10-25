@@ -38,37 +38,39 @@ export const FilterDropdown = ({
 
       <ul
         tabIndex={0}
-        className="dropdown-content menu p-2 shadow-lg bg-base-200 rounded-box w-52 mt-2 z-50 max-h-96 overflow-y-auto"
+        className="dropdown-content menu p-2 shadow-lg bg-base-200 rounded-box w-52 mt-2 z-50 "
       >
-        {/* Clear/All option */}
-        <li>
-          <button
-            className={`${!value ? 'active' : ''}`}
-            onClick={() => onChange(null)}
-          >
-            {placeholder}
-          </button>
-        </li>
-
-        <div className="divider my-1"></div>
-
-        {/* Options */}
-        {options.map((option) => (
-          <li key={option.value}>
+        <div className="max-h-128 overflow-y-auto">
+          {/* Clear/All option */}
+          <li>
             <button
-              className={`flex items-center gap-2 ${value === option.value ? 'active' : ''}`}
-              onClick={() => onChange(option.value)}
+              className={`${!value ? 'active' : ''}`}
+              onClick={() => onChange(null)}
             >
-              {option.color && (
-                <div
-                  className="w-3 h-3 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: option.color }}
-                />
-              )}
-              <span>{option.name}</span>
+              {placeholder}
             </button>
           </li>
-        ))}
+
+          <div className="divider my-1"></div>
+
+          {/* Options */}
+          {options.map((option) => (
+            <li key={option.value}>
+              <button
+                className={`flex items-center gap-2 ${value === option.value ? 'active' : ''}`}
+                onClick={() => onChange(option.value)}
+              >
+                {option.color && (
+                  <div
+                    className="w-3 h-3 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: option.color }}
+                  />
+                )}
+                <span>{option.name}</span>
+              </button>
+            </li>
+          ))}
+        </div>
       </ul>
     </div>
   )

@@ -7,7 +7,7 @@ import { getDashStats, getGroupDashStats } from "../end-points/auth/pages/dashbo
 import { createCategory, deleteCategory, getCategoryBasic, getCategoryStats, listCategories, updateCategory } from "../end-points/auth/categories.js"
 import { createActivity, deleteActivity, getActivityBasic, getActivityStats, listActivities, toggleActivity, updateActivity } from "../end-points/auth/activities.js"
 import { createActivityMetric, deleteActivityMetric, listActivityMetrics, makePrimaryMetric, updateActivityMetric } from "../end-points/auth/activityMetrics.js"
-import { createProgressEntry, deleteProgressEntry, getProgressEntry, listProgressEntries, listProgressEntryCalendar, updateProgressEntry } from "../end-points/auth/progressEntries.js"
+import { createProgressEntry, deleteProgressEntry, getProgressEntry, getProgressEntryDayDetail, listProgressEntries, listProgressEntryCalendar, updateProgressEntry } from "../end-points/auth/progressEntries.js"
 import { createGoal, deleteGoal, getGoal, listGoals, toggleGoal, updateGoal } from "../end-points/auth/goals.js"
 import { addMember, createGroup, deleteGroup, getGroup, listGroups, removeMember, updateGroup, updateRole } from "../end-points/auth/groups.js"
 import { getGroupLeaderboard } from "../end-points/auth/pages/leaderboard.js"
@@ -52,6 +52,7 @@ authRouter.post("/progress-entry/calendar", listProgressEntryCalendar)
 authRouter.post("/progress-entry/create", createProgressEntry)
 authRouter.post("/progress-entry/update", updateProgressEntry)
 authRouter.post("/progress-entry/delete", deleteProgressEntry)
+authRouter.post("/progress-entry/day-detail", getProgressEntryDayDetail)
 
 authRouter.post("/goal/get", getGoal)
 authRouter.post("/goal/list", listGoals)

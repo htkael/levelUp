@@ -6,7 +6,6 @@ import { Sidebar } from "../components/layout/Sidebar"
 
 const AuthenticatedPage = () => {
   const { user, handleLogout } = useContext(AuthContext)
-
   useEffect(() => {
     const intervalId = setInterval(() => {
       (async () => {
@@ -22,20 +21,17 @@ const AuthenticatedPage = () => {
     }, 1000 * 60 * 5)
     return () => clearInterval(intervalId)
   }, [handleLogout])
-
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       {/* Fixed Header */}
       <Header />
-
       {/* Main Layout with Fixed Sidebar and Scrollable Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Fixed Sidebar */}
         <Sidebar />
-
-        {/* Scrollable Main Content */}
-        <main className="flex-1 overflow-y-auto bg-base-100">
-          <div className="container min-w-full ">
+        {/* Main Content - removed overflow-y-auto */}
+        <main className="flex-1 overflow-hidden bg-base-100">
+          <div className="h-full">
             <Outlet />
           </div>
         </main>
