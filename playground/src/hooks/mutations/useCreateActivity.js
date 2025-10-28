@@ -18,6 +18,7 @@ export const useCreateActivity = () => {
       toast.success("Activity created successfully!")
       queryClient.invalidateQueries({ queryKey: ["activities"] })
       queryClient.invalidateQueries({ queryKey: ["dashboard"] })
+      queryClient.invalidateQueries({ queryKey: ["categories"] })
       queryClient.invalidateQueries({ queryKey: ["category", data.categoryId] })
       queryClient.invalidateQueries({ queryKey: ["categoryStats", data.categoryId] })
     },
