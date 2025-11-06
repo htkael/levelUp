@@ -1,10 +1,14 @@
 import { formatDate } from "date-fns"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { formatRelativeDate } from "../../utils/dateHelpers"
 
 export const GoalCard = ({ goal, showActivity = false }) => {
+  const navigate = useNavigate()
+  const handleClick = () => {
+    navigate(`/goals/${goal.id}`)
+  }
   return (
-    <div className="card bg-base-100 shadow-sm hover:shadow-md hover:scale-[1.02] hover:bg-base-300 transition-all duration-200 cursor-pointer">
+    <div className="card bg-base-100 shadow-sm hover:shadow-md hover:scale-[1.02] hover:bg-base-300 transition-all duration-200 cursor-pointer" onClick={handleClick}>
       <div className="card-body p-4">
         <div className="flex justify-between items-start mb-2">
           <div className="flex-1">
