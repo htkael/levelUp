@@ -8,7 +8,7 @@ import {
   getTodayLocal
 } from "../utils/dateHelpers.js"
 import { CalendarDay } from "../components/calendar/CalendarDay.jsx"
-import { FilterDropdown } from "../components/calendar/CalendarFilter.jsx"
+import { FilterDropdown } from "../components/shared/FilterDropdown.jsx"
 import { FaRunning, FaFolder } from "react-icons/fa"
 import { useActivities } from "../hooks/useActivities.js"
 import { useCategories } from "../hooks/useCategories.js"

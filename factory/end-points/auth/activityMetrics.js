@@ -1,6 +1,6 @@
 import { CreateAndLog, UpdateAndLog, DeleteAndLog, getGenericById } from "../../shared/dbFuncs.js";
 import pg from "../../pg-cli.js";
-import { METRIC_TYPES } from "../../constants/metricTypes.js";
+import { METRIC_TYPES } from "../../constants/constants.js";
 import { Logger } from "../../shared/logger.js";
 
 export async function createActivityMetric(req, res) {

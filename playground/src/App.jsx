@@ -14,6 +14,7 @@ import { Category } from "./pages/Category.jsx"
 import { Activities } from './pages/Activities.jsx'
 import { Activity } from './pages/Activity.jsx'
 import { Calendar } from './pages/Calendar.jsx'
+import { Goals } from './pages/Goals.jsx'
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <Route path="activities" element={<Activities />} />
         <Route path="activities/:id" element={<Activity />} />
         <Route path="calendar" element={<Calendar />} />
+        <Route path="goals" element={<Goals />} />
       </Route>
     </Routes>
   )
@@ -35,8 +37,8 @@ function App() {
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 60 * 1000,
-      retry: 1,
+      staleTime: 60 * 5 * 1000,
+      retry: 2,
       refetchOnWindowFocus: true
     }
   }

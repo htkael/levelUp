@@ -1,4 +1,4 @@
-import { differenceInDays, format, parse, parseISO, startOfDay, startOfMonth, startOfWeek } from "date-fns"
+import { addDays, addMonths, addQuarters, addWeeks, addYears, differenceInDays, format, parse, parseISO, startOfDay, startOfMonth, startOfWeek } from "date-fns"
 import { formatInTimeZone, fromZonedTime, toZonedTime } from "date-fns-tz"
 
 export function getCurrentDateInTimezone(timezone) {
@@ -87,4 +87,23 @@ export function getStartOfLastMonthInTimezone(timezone) {
   const lastMonth = new Date(monthStart)
   lastMonth.setMonth(lastMonth.getMonth() - 1)
   return format(lastMonth, 'yyyy-MM-dd')
+}
+
+export function calculateEndDate(startDate, targetPeriod) {
+  const start = parseISO(startDate)
+
+  switch (targetPeriod) {
+    case "DAILY":
+      return format(addDays(start, 1), 'yyyy-MM-dd')
+    case "WEEKLY":
+      return format(addWeeks(start, 1), "yyyy-MM-dd")
+    case "MONTHLY":
+      return format(addMonths(start, 1), 'yyyy-MM-dd')
+    case "QUARTERLY":
+      return format(addQuarters(start, 1), 'yyyy-MM-dd')
+    case "YEARLY":
+      return format(addYears(start, 1), 'yyyy-MM-dd')
+    default:
+      throw new Error(`Unknown target period: ${targetPeriod}`)
+  }
 }

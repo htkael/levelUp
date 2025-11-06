@@ -1,6 +1,8 @@
 import { CreateAndLog, DeleteAndLog, getGenericById, getUserGroupRole, UpdateAndLog } from "../../shared/dbFuncs.js"
+import pg from "../../pg-cli.js"
 import { Logger } from "../../shared/logger.js"
-import { getCurrentDateInTimezone } from "../../shared/timezone.js"
+import { calculateEndDate, getCurrentDateInTimezone } from "../../shared/timezone.js"
+import { TARGET_PERIODS } from "../../constants/constants.js"
 
 export async function listGoals(req, res) {
   try {
@@ -22,7 +24,7 @@ export async function listGoals(req, res) {
         c.name as "categoryName",
         am."metricName" as "metricName",
         am."metricType" as "metricType",
-        am.unit as "metricUnit",
+        am.unit as "unit",
           (
             SELECT COALESCE(SUM(pm.value), 0)
             FROM "ProgressMetric" pm
@@ -34,7 +36,7 @@ export async function listGoals(req, res) {
           ) as "currentProgress",
           EXTRACT(DAYS FROM AGE($2::date, g."startDate")) as "daysElapsed",
           GREATEST(0, EXTRACT(DAYS FROM AGE(g."endDate", $2::date))) as "daysRemaining",
-          EXTRACT(DAYS FROM AGE(g."endDate", g."startDate)) as "totalDays",
+          EXTRACT(DAYS FROM AGE(g."endDate", g."startDate")) as "totalDays",
           (
             SELECT MAX(pe."entryDate")
             FROM "ProgressMetric" pm
@@ -68,7 +70,7 @@ export async function listGoals(req, res) {
       vals.push(groupId)
     }
 
-    if (isActive !== undefined) {
+    if (isActive === true) {
       paramCount++
       query += ` AND g."isActive" = $${paramCount}`
       vals.push(isActive)
@@ -115,7 +117,7 @@ export async function getGoal(req, res) {
         c.name as "categoryName",
         am."metricName" as "metricName",
         am."metricType" as "metricType",
-        am.unit as "metricUnit",
+        am.unit as "unit",
           (
             SELECT COALESCE(SUM(pm.value), 0)
             FROM "ProgressMetric" pm
@@ -190,6 +192,8 @@ export async function createGoal(req, res) {
 
     const { goal } = req.body
 
+    Logger.debug("Goal incoming", goal)
+
     if (goal?.groupId) {
       const userRole = await getUserGroupRole(user, goal.groupId)
       if (userRole.error) {
@@ -201,18 +205,37 @@ export async function createGoal(req, res) {
     }
 
 
-    if (!(goal.targetValue && goal.targetPeriod && goal.startDate && goal.endDate && goal.activityId && goal.metricId)) {
-      throw new Error("Goal requires targetValue, targetPeriod, startDate, endDate, activityId, and metricId")
+    if (!(goal.targetValue && goal.targetPeriod && goal.startDate && goal.activityId && goal.metricId)) {
+      throw new Error("Goal requires targetValue, targetPeriod, startDate, activityId, and metricId")
+    }
+
+
+    const validPeriods = Object.values(TARGET_PERIODS)
+    if (!validPeriods.includes(goal.targetPeriod)) {
+      throw new Error("Invalid target period")
+    }
+
+    if ((goal.targetPeriod === TARGET_PERIODS.TOTAL && !goal?.endDate)) {
+      throw new Error("Non recurring goals must send an end date with request")
+    }
+
+    let endDateToAdd
+
+    if (goal?.endDate && goal.targetPeriod === TARGET_PERIODS.TOTAL) {
+      endDateToAdd = goal.endDate
+    } else {
+      endDateToAdd = calculateEndDate(goal.startDate, goal?.targetPeriod)
     }
 
     const start = new Date(goal.startDate)
-    const end = new Date(goal.endDate)
+    const end = new Date(endDateToAdd)
 
     if (end < start) {
       throw new Error("End date must be after start date")
     }
 
     const originalMetric = await getGenericById("ActivityMetric", goal.metricId)
+    Logger.debug("originalMetric", originalMetric)
 
     if (!originalMetric) {
       throw new Error(`metric with id: ${goal.metricId} not found`)
@@ -224,6 +247,7 @@ export async function createGoal(req, res) {
 
     const newGoal = {
       ...goal,
+      endDate: endDateToAdd,
       userId: goal?.groupId ? null : user.id,
       groupId: goal?.groupId ? goal.groupId : null,
       updatedAt: new Date()

@@ -137,7 +137,7 @@ model Goal {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   targetValue  Decimal        @db.Decimal(10, 2)
-  targetPeriod TargetPeriod
+  targetPeriod TargetPeriod   @default(TOTAL)
   startDate    DateTime       @db.Date
   endDate      DateTime       @db.Date
   isActive     Boolean        @default(true)

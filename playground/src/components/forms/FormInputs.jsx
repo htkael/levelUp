@@ -138,6 +138,7 @@ export const DateInput = ({
   styles,
   presetValue,
   maxToday = true,
+  minDate = undefined,
   ...props
 }) => {
   return (
@@ -146,6 +147,7 @@ export const DateInput = ({
       name={name}
       type="date"
       styles={styles}
+      min={minDate ? minDate : undefined}
       max={maxToday ? getTodayLocal() : undefined}
       presetValue={presetValue}
       {...props}
