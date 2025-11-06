@@ -3,7 +3,7 @@ import { api } from "../utils/api.js"
 
 export const useCalendar = ({ activityId, categoryId, month }) => {
   return useQuery({
-    queryKey: ["calendar", activityId, categoryId, month],
+    queryKey: ["calendar", Number(activityId), Number(categoryId), month],
     queryFn: async () => {
       const response = await api("/auth/progress-entry/calendar", { activityId, categoryId, month })
       if (!response.success) {

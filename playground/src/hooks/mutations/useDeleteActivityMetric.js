@@ -17,8 +17,8 @@ export const useDeleteActivityMetric = () => {
 
     onSuccess: (data, variables) => {
       toast.success("Metric successfully deleted!")
-      queryClient.invalidateQueries({ queryKey: ["activity", variables.activityId] })
-      queryClient.invalidateQueries({ queryKey: ["activityStats", variables.activityId] })
+      queryClient.invalidateQueries({ queryKey: ["activity", Number(variables.activityId)] })
+      queryClient.invalidateQueries({ queryKey: ["activityStats", Number(variables.activityId)] })
       queryClient.invalidateQueries({ queryKey: ["activities"] })
     },
 

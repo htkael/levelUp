@@ -18,8 +18,9 @@ export const useCreateGoal = () => {
 
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["goals"] })
-      queryClient.invalidateQueries({ queryKey: ["activity", data.activityId] })
-      queryClient.invalidateQueries({ queryKey: ["activityStats", data.activityId] })
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] })
+      queryClient.invalidateQueries({ queryKey: ["activity", Number(data.activityId)] })
+      queryClient.invalidateQueries({ queryKey: ["activityStats", Number(data.activityId)] })
 
       toast.success("Goal created successfully!")
     },

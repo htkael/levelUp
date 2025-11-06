@@ -3,7 +3,7 @@ import { api } from "../utils/api";
 
 export const useGoals = ({ activityId, isActive, groupId }) => {
   return useQuery({
-    queryKey: ['goals', activityId, isActive, groupId],
+    queryKey: ['goals', Number(activityId), isActive, Number(groupId)],
     queryFn: async () => {
       const response = await api("/auth/goal/list", { activityId, isActive, groupId })
 

@@ -17,10 +17,10 @@ export const useUpdateActivity = () => {
     onSuccess: (data) => {
       toast.success("Activity updated successfully!")
       queryClient.invalidateQueries({ queryKey: ["activities"] })
-      queryClient.invalidateQueries({ queryKey: ["category", data.categoryId] })
-      queryClient.invalidateQueries({ queryKey: ["categoryStats", data.categoryId] })
-      queryClient.invalidateQueries({ queryKey: ["activity", data.id] })
-      queryClient.invalidateQueries({ queryKey: ["activityStats", data.id] })
+      queryClient.invalidateQueries({ queryKey: ["category", Number(data.categoryId)] })
+      queryClient.invalidateQueries({ queryKey: ["categoryStats", Number(data.categoryId)] })
+      queryClient.invalidateQueries({ queryKey: ["activity", Number(data.id)] })
+      queryClient.invalidateQueries({ queryKey: ["activityStats", Number(data.id)] })
       queryClient.invalidateQueries({ queryKey: ["calendar"] })
       queryClient.invalidateQueries({ queryKey: ["calendarDay"] })
     },

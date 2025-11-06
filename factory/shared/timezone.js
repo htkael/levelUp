@@ -1,5 +1,6 @@
-import { addDays, addMonths, addQuarters, addWeeks, addYears, differenceInDays, format, parse, parseISO, startOfDay, startOfMonth, startOfWeek } from "date-fns"
+import { addDays, differenceInDays, endOfMonth, endOfQuarter, endOfYear, format, parse, parseISO, startOfDay, startOfMonth, startOfWeek } from "date-fns"
 import { formatInTimeZone, fromZonedTime, toZonedTime } from "date-fns-tz"
+import { Logger } from "./logger.js"
 
 export function getCurrentDateInTimezone(timezone) {
   return formatInTimeZone(new Date(), timezone, "yyyy-MM-dd")
@@ -89,20 +90,34 @@ export function getStartOfLastMonthInTimezone(timezone) {
   return format(lastMonth, 'yyyy-MM-dd')
 }
 
-export function calculateEndDate(startDate, targetPeriod) {
-  const start = parseISO(startDate)
+export function calculateEndDate(startDateStr, targetPeriod) {
+  const start = parseISO(startDateStr)
+  Logger.debug("start", { start, targetPeriod })
+  Logger.debug("daily", format(start, 'yyyy-MM-dd'))
+  Logger.debug("WEEKLY", format(addDays(start, 6), 'yyyy-MM-dd'))
+  Logger.debug("MONTHLY", format(endOfMonth(start), 'yyyy-MM-dd'))
+  Logger.debug("QUARTERLY", format(endOfQuarter(start), 'yyyy-MM-dd'))
+  Logger.debug("YEARLY", format(endOfYear(start), 'yyyy-MM-dd'))
 
   switch (targetPeriod) {
-    case "DAILY":
-      return format(addDays(start, 1), 'yyyy-MM-dd')
-    case "WEEKLY":
-      return format(addWeeks(start, 1), "yyyy-MM-dd")
-    case "MONTHLY":
-      return format(addMonths(start, 1), 'yyyy-MM-dd')
-    case "QUARTERLY":
-      return format(addQuarters(start, 1), 'yyyy-MM-dd')
-    case "YEARLY":
-      return format(addYears(start, 1), 'yyyy-MM-dd')
+    case 'DAILY':
+      return format(start, 'yyyy-MM-dd')
+
+    case 'WEEKLY':
+      return format(addDays(start, 6), 'yyyy-MM-dd')
+
+    case 'MONTHLY':
+      return format(endOfMonth(start), 'yyyy-MM-dd')
+
+    case 'QUARTERLY':
+      return format(endOfQuarter(start), 'yyyy-MM-dd')
+
+    case 'YEARLY':
+      return format(endOfYear(start), 'yyyy-MM-dd')
+
+    case 'TOTAL':
+      return startDateStr
+
     default:
       throw new Error(`Unknown target period: ${targetPeriod}`)
   }

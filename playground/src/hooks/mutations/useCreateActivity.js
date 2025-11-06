@@ -19,8 +19,8 @@ export const useCreateActivity = () => {
       queryClient.invalidateQueries({ queryKey: ["activities"] })
       queryClient.invalidateQueries({ queryKey: ["dashboard"] })
       queryClient.invalidateQueries({ queryKey: ["categories"] })
-      queryClient.invalidateQueries({ queryKey: ["category", data.categoryId] })
-      queryClient.invalidateQueries({ queryKey: ["categoryStats", data.categoryId] })
+      queryClient.invalidateQueries({ queryKey: ["category", Number(data.categoryId)] })
+      queryClient.invalidateQueries({ queryKey: ["categoryStats", Number(data.categoryId)] })
     },
 
     onError: (error) => {

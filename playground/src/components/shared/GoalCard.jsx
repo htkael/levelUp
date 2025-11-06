@@ -1,4 +1,4 @@
-import { formatDate } from "date-fns"
+import { formatDate } from "../../utils/dateHelpers"
 import { Link, useNavigate } from "react-router-dom"
 import { formatRelativeDate } from "../../utils/dateHelpers"
 

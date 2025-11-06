@@ -8,7 +8,6 @@ export const useUpdateActivityMetric = () => {
   return useMutation({
     mutationFn: async (metricData) => {
       const response = await api("/auth/activity-metric/update", { activityMetric: metricData })
-      console.log("resposne", response)
       if (!response.success) {
         throw new Error(response.error || "Failed to update activity metric")
       }
@@ -18,10 +17,10 @@ export const useUpdateActivityMetric = () => {
 
     onSuccess: (data) => {
       toast.success("Metric updated successfully!")
-      queryClient.invalidateQueries({ queryKey: ["activity", data.activityId] })
-      queryClient.invalidateQueries({ queryKey: ["activityStats", data.activityId] })
+      queryClient.invalidateQueries({ queryKey: ["activity", Number(data.activityId)] })
+      queryClient.invalidateQueries({ queryKey: ["activityStats", Number(data.activityId)] })
       queryClient.invalidateQueries({ queryKey: ["activities"] })
-      queryClient.invalidateQueries({ queryKey: ["activityMetric", data.activityId] })
+      queryClient.invalidateQueries({ queryKey: ["activityMetric", Number(data.activityId)] })
       queryClient.invalidateQueries({ queryKey: ["calendar"] })
       queryClient.invalidateQueries({ queryKey: ["calendarDay"] })
     },

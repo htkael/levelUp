@@ -31,7 +31,6 @@ export const CreateMetricType = ({ initialData, isOpen, onClose, activityId }) =
       })
     } else {
       payload = { ...payload, id: initialData.metricId }
-      console.log("payload", payload)
       updateMetricType({ ...payload, id: initialData.metricId }, {
         onSuccess: () => {
           onClose()

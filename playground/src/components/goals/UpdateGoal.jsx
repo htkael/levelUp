@@ -1,19 +1,34 @@
-import { useState } from "react"
-import { useCreateGoal } from "../../hooks/mutations/useCreateGoal"
+import { useEffect, useState } from "react"
+import { useUpdateGoal } from "../../hooks/mutations/useUpdateGoal.js"
 import { useActivities } from "../../hooks/useActivities"
 import { useActivityMetrics } from "../../hooks/useActivityMetrics.js"
 import { DateInput, NumberInput, SelectInput } from "../forms/FormInputs"
 import { FormModal } from "../forms/FormModal"
+import { formatDateForInput } from "../../utils/dateHelpers.js"
 
-export const CreateGoal = ({ isOpen, onClose }) => {
+export const UpdateGoal = ({ isOpen, onClose, goal }) => {
   const [formData, setFormData] = useState({
-    targetValue: null,
-    targetPeriod: null,
-    startDate: null,
-    endDate: null,
-    activityId: null,
-    metricId: null
+    id: goal.id,
+    targetValue: goal.targetValue,
+    targetPeriod: goal.targetPeriod,
+    startDate: formatDateForInput(goal.startDate),
+    endDate: formatDateForInput(goal.endDate),
+    activityId: goal.activityId,
+    metricId: goal.metricId
   })
+
+  useEffect(() => {
+    setFormData({
+      id: goal.id,
+      targetValue: goal.targetValue,
+      targetPeriod: goal.targetPeriod,
+      startDate: formatDateForInput(goal.startDate),
+      endDate: formatDateForInput(goal.endDate),
+      activityId: goal.activityId,
+      metricId: goal.metricId
+
+    })
+  }, [goal])
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -27,7 +42,7 @@ export const CreateGoal = ({ isOpen, onClose }) => {
     setFormData(updatedData)
   }
 
-  const { mutate: createGoal, isPending, error } = useCreateGoal()
+  const { mutate: updateGoal, isPending, error } = useUpdateGoal()
   const { data: activityMetrics, isLoading: isMetricsLoading } = useActivityMetrics(formData?.activityId)
 
   const filters = {
@@ -84,16 +99,8 @@ export const CreateGoal = ({ isOpen, onClose }) => {
       activityId: Number(formData?.activityId),
       metricId: Number(formData?.metricId),
     }
-    createGoal(cleanedData, {
+    updateGoal(cleanedData, {
       onSuccess: () => {
-        setFormData({
-          targetValue: null,
-          targetPeriod: null,
-          startDate: null,
-          endDate: null,
-          activityId: null,
-          metricId: null
-        })
         onClose()
       }
     })
@@ -119,7 +126,7 @@ export const CreateGoal = ({ isOpen, onClose }) => {
         label="Which activity will this goal belong to?"
         options={activityOptions}
         required
-        disabled={isPending}
+        disabled={true}
       />
       {formData?.activityId && (
         <SelectInput
@@ -127,7 +134,7 @@ export const CreateGoal = ({ isOpen, onClose }) => {
           label="Which metric do you want to track for this goal?"
           options={metricOptions}
           required
-          disabled={isPending}
+          disabled={true}
         />
       )}
       <SelectInput
@@ -151,7 +158,7 @@ export const CreateGoal = ({ isOpen, onClose }) => {
         label="When do you want to start this goal?"
         maxToday={false}
         required
-        disabled={isPending}
+        disabled={true}
       />
 
       {formData?.targetPeriod === "TOTAL" && (

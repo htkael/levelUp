@@ -17,7 +17,7 @@ export const useToggleActivity = () => {
     onSuccess: (data) => {
       toast.success("Activity toggled successfully!")
       queryClient.invalidateQueries({ queryKey: ["activities"] })
-      queryClient.invalidateQueries({ queryKey: ["activity", data.id] })
+      queryClient.invalidateQueries({ queryKey: ["activity", Number(data.id)] })
     },
 
     onError: (error) => {

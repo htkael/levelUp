@@ -19,8 +19,8 @@ export const useUpdateCategory = () => {
     onSuccess: (data, variables) => {
       toast.success("Successfully updated category")
       queryclient.invalidateQueries({ queryKey: ["categories"] })
-      queryclient.invalidateQueries({ queryKey: ["category", variables.id] })
-      queryclient.invalidateQueries({ queryKey: ["categoryStats", variables.id] })
+      queryclient.invalidateQueries({ queryKey: ["category", Number(variables.id)] })
+      queryclient.invalidateQueries({ queryKey: ["categoryStats", Number(variables.id)] })
       queryclient.invalidateQueries({ queryKey: ["dashboard"] })
       queryclient.invalidateQueries({ queryKey: ["calendar"] })
       queryclient.invalidateQueries({ queryKey: ["calendarDay"] })

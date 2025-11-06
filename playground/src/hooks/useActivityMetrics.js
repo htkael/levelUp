@@ -3,7 +3,7 @@ import { api } from "../utils/api.js"
 
 export const useActivityMetrics = (activityId) => {
   return useQuery({
-    queryKey: ["activityMetric", activityId],
+    queryKey: ["activityMetric", Number(activityId)],
     queryFn: async () => {
       const response = await api("/auth/activity-metric/list", { activityId })
       if (!response.success) {

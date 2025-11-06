@@ -17,9 +17,9 @@ export const useCreateMetricType = () => {
 
     onSuccess: (data) => {
       toast.success("Metric created successfully!")
-      queryClient.invalidateQueries({ queryKey: ["activity", data.activityId] })
-      queryClient.invalidateQueries({ queryKey: ["activityMetric", data.activityId] })
-      queryClient.invalidateQueries({ queryKey: ["activityStats", data.activityId] })
+      queryClient.invalidateQueries({ queryKey: ["activity", Number(data.activityId)] })
+      queryClient.invalidateQueries({ queryKey: ["activityMetric", Number(data.activityId)] })
+      queryClient.invalidateQueries({ queryKey: ["activityStats", Number(data.activityId)] })
       queryClient.invalidateQueries({ queryKey: ["activities"] })
     },
 

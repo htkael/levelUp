@@ -3,7 +3,7 @@ import { api } from "../utils/api";
 
 export const useGetProgressEntry = (id) => {
   return useQuery({
-    queryKey: ["progressEntry", id],
+    queryKey: ["progressEntry", Number(id)],
     queryFn: async () => {
       const response = await api("/auth/progress-entry/get", { entryId: id })
       if (!response.success) {

@@ -17,8 +17,8 @@ export const useUpdateProgressEntry = () => {
 
     onSuccess: (data) => {
       toast.success("Progress entry updated successfully!")
-      queryClient.invalidateQueries({ queryKey: ["progressEntry", data.updated.id] })
-      queryClient.invalidateQueries({ queryKey: ["activityStats", data.updated.activityId] })
+      queryClient.invalidateQueries({ queryKey: ["progressEntry", Number(data.updated.id)] })
+      queryClient.invalidateQueries({ queryKey: ["activityStats", Number(data.updated.activityId)] })
       queryClient.invalidateQueries({ queryKey: ["activities"] })
       queryClient.invalidateQueries({ queryKey: ["dashboard"] })
       queryClient.invalidateQueries({ queryKey: ['goals'] })

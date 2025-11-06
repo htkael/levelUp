@@ -16,11 +16,9 @@ export const useToggleActivityMetric = () => {
     },
 
     onSuccess: (data, variables) => {
-      console.log("variables", variables)
-      console.log("data", data)
       toast.success("Metric successfully set as primary!")
-      queryClient.invalidateQueries({ queryKey: ["activity", variables.activityId] })
-      queryClient.invalidateQueries({ queryKey: ["activityStats", variables.activityId] })
+      queryClient.invalidateQueries({ queryKey: ["activity", Number(variables.activityId)] })
+      queryClient.invalidateQueries({ queryKey: ["activityStats", Number(variables.activityId)] })
     },
 
     onError: (error) => {

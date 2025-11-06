@@ -39,7 +39,7 @@ export const formatRelativeDate = (dateString) => {
 }
 
 export const formatDateForInput = (date = new Date()) => {
-  return format(date, 'yyyy-MM-dd')
+  return formatDate(date, 'yyyy-MM-dd')
 }
 
 export const parseLocalDate = (dateStr) => {
@@ -88,9 +88,7 @@ export const getStartOfWeek = (date = new Date()) => {
 }
 
 export const getStartOfMonth = (date = new Date()) => {
-  console.log("date", date)
   const monthStart = startOfMonth(date)
-  console.log("monthStart", monthStart)
   return formatDateForInput(monthStart)
 }
 

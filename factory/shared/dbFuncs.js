@@ -50,7 +50,7 @@ export const CreateAndLog = async (tablename, item, consoleLog = true, client = 
     }
   } catch (error) {
     Logger.error(`${tablename} failed to insert`, { error, objects: { item, tablename } });
-    return { error: { msg: `${tablename} failed to insert`, obj: { item, tablename } } };
+    return { error: { message: `${tablename} failed to insert`, obj: { item, tablename } } };
   }
 }
 
@@ -91,7 +91,7 @@ export const UpdateAndLog = async (tablename, itemId, updated, consoleLog = true
     }
   } catch (error) {
     Logger.error(`${tablename} failed to update`, { error: error.message, objects: { updated, tablename } });
-    return { error: { msg: `${tablename} failed to update`, obj: { itemId, tablename } } };
+    return { error: { message: `${tablename} failed to update`, obj: { itemId, tablename } } };
   }
 }
 
@@ -104,7 +104,7 @@ export const DeleteAndLog = async (tablename, itemId, client = pg) => {
 
   } catch (error) {
     Logger.error(`${tablename} failed to delte`, { error, objects: { itemId, tablename } });
-    return { error: { msg: `${tablename} failed to delte`, obj: { itemId, tablename } } };
+    return { error: { message: `${tablename} failed to delte`, obj: { itemId, tablename } } };
   }
 }
 

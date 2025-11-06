@@ -3,7 +3,7 @@ import { api } from "../utils/api";
 
 export const useActivities = ({ groupId, categoryId, isActive }) => {
   return useQuery({
-    queryKey: ["activities", groupId, categoryId, isActive],
+    queryKey: ["activities", Number(groupId), Number(categoryId), isActive],
     queryFn: async () => {
       const response = await api("/auth/activity/list", { groupId, categoryId, isActive })
       if (!response.success) {

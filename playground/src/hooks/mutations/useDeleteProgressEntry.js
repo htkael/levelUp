@@ -23,11 +23,11 @@ export const useDeleteProgressEntry = () => {
       queryClient.invalidateQueries({ queryKey: ['calendar'] })
       queryClient.invalidateQueries({ queryKey: ['category'] })
       queryClient.invalidateQueries({ queryKey: ['categories'] })
-      queryClient.invalidateQueries({ queryKey: ['activityMetric', variables.activityId] })
+      queryClient.invalidateQueries({ queryKey: ['activityMetric', Number(variables.activityId)] })
       queryClient.invalidateQueries({ queryKey: ['categoryStats'] })
       queryClient.invalidateQueries({ queryKey: ['activities'] })
-      queryClient.invalidateQueries({ queryKey: ['activity', variables.activityId] })
-      queryClient.invalidateQueries({ queryKey: ['activityStats', variables.activityId] })
+      queryClient.invalidateQueries({ queryKey: ['activity', Number(variables.activityId)] })
+      queryClient.invalidateQueries({ queryKey: ['activityStats', Number(variables.activityId)] })
     },
 
     onError: (error) => {

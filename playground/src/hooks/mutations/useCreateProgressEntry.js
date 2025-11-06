@@ -23,11 +23,11 @@ export const useCreateProgressEntry = () => {
       queryClient.invalidateQueries({ queryKey: ['calendarDay'] })
       queryClient.invalidateQueries({ queryKey: ['category'] })
       queryClient.invalidateQueries({ queryKey: ['categories'] })
-      queryClient.invalidateQueries({ queryKey: ['activityMetric', data.activityId] })
+      queryClient.invalidateQueries({ queryKey: ['activityMetric', Number(data.activityId)] })
       queryClient.invalidateQueries({ queryKey: ['categoryStats'] })
       queryClient.invalidateQueries({ queryKey: ['activities'] })
-      queryClient.invalidateQueries({ queryKey: ['activity', data.activityId] })
-      queryClient.invalidateQueries({ queryKey: ['activityStats', data.activityId] })
+      queryClient.invalidateQueries({ queryKey: ['activity', Number(data.activityId)] })
+      queryClient.invalidateQueries({ queryKey: ['activityStats', Number(data.activityId)] })
     },
 
     onError: (error) => {

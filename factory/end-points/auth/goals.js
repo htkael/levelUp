@@ -215,8 +215,6 @@ export async function createGoal(req, res) {
 
     const { goal } = req.body
 
-    Logger.debug("Goal incoming", goal)
-
     if (goal?.groupId) {
       const userRole = await getUserGroupRole(user, goal.groupId)
       if (userRole.error) {
@@ -299,9 +297,13 @@ export async function updateGoal(req, res) {
 
     const { goal } = req.body
 
+    if (!goal.id) {
+      throw new Error("Goal needs an id to update")
+    }
+
     const originalGoal = await getGenericById("Goal", goal.id)
 
-    if (!originalGoal) {
+    if (!originalGoal?.id) {
       throw new Error(`goal with id: ${goal.id} not found`)
     }
 
@@ -319,12 +321,31 @@ export async function updateGoal(req, res) {
       }
     }
 
-    if (!(goal.id && goal.targetValue && goal.targetPeriod && goal.startDate && goal.endDate && goal.activityId && goal.metricId)) {
-      throw new Error("Updated goal requires id, targetValue, targetPeriod, startDate, endDate, activityId, and metricId")
+    if (!(goal.targetValue && goal.targetPeriod && goal.startDate && goal.activityId && goal.metricId)) {
+      throw new Error("Goal requires targetValue, targetPeriod, startDate, activityId, and metricId")
+    }
+
+
+    const validPeriods = Object.values(TARGET_PERIODS)
+    if (!validPeriods.includes(goal.targetPeriod)) {
+      throw new Error("Invalid target period")
+    }
+
+    if ((goal.targetPeriod === TARGET_PERIODS.TOTAL && !goal?.endDate)) {
+      throw new Error("Non recurring goals must send an end date with request")
+    }
+
+    let endDateToAdd
+
+    if (goal?.endDate && goal.targetPeriod === TARGET_PERIODS.TOTAL) {
+      endDateToAdd = goal.endDate
+    } else {
+      endDateToAdd = calculateEndDate(goal.startDate, goal?.targetPeriod)
+      Logger.debug("date calculated", { endDateToAdd })
     }
 
     const start = new Date(goal.startDate)
-    const end = new Date(goal.endDate)
+    const end = new Date(endDateToAdd)
 
     if (end < start) {
       throw new Error("End date must be after start date")
@@ -343,12 +364,17 @@ export async function updateGoal(req, res) {
 
     const newGoal = {
       ...goal,
-      userId: originalGoal.userId,
-      goalId: originalGoal.goalId,
+      endDate: endDateToAdd,
+      userId: goal?.groupId ? null : user.id,
+      groupId: goal?.groupId ? goal.groupId : null,
       updatedAt: new Date()
     }
 
+    Logger.debug("originalGoal", originalGoal)
+    Logger.debug("newgoal", newGoal)
+
     const updated = await UpdateAndLog("Goal", originalGoal.id, newGoal)
+    Logger.debug("updated", updated)
 
     if (updated?.error) {
       throw new Error(updated.error)

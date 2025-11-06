@@ -2,22 +2,18 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { formatDate } from '../../utils/dateHelpers'
 
 export const GoalProgressChart = ({ goal }) => {
-  // Build cumulative progress data from entries
   const buildChartData = () => {
     if (!goal.allEntries || goal.allEntries.length === 0) {
       return []
     }
 
-    // Sort entries by date
     const sortedEntries = [...goal.allEntries].sort((a, b) =>
       new Date(a.entryDate) - new Date(b.entryDate)
     )
 
-    // Build cumulative data points
     let cumulative = 0
     const dataPoints = []
 
-    // Add start point
     const startDate = goal.startDate.split('T')[0]
     dataPoints.push({
       date: startDate,
@@ -25,7 +21,6 @@ export const GoalProgressChart = ({ goal }) => {
       displayDate: formatDate(startDate, 'MMM d')
     })
 
-    // Add each entry's cumulative value
     sortedEntries.forEach(entry => {
       cumulative += parseFloat(entry.value)
       dataPoints.push({
@@ -35,7 +30,6 @@ export const GoalProgressChart = ({ goal }) => {
       })
     })
 
-    // Add current date point (today) with last cumulative value
     const today = new Date().toISOString().split('T')[0]
     const lastEntryDate = sortedEntries[sortedEntries.length - 1].entryDate
 
@@ -47,12 +41,11 @@ export const GoalProgressChart = ({ goal }) => {
       })
     }
 
-    // Add end date as a placeholder point (no progress value, just for axis scaling)
     const endDate = goal.endDate.split('T')[0]
     if (endDate !== today && endDate !== lastEntryDate) {
       dataPoints.push({
         date: endDate,
-        progress: null, // null so it doesn't draw a line here
+        progress: null,
         displayDate: formatDate(endDate, 'MMM d')
       })
     }

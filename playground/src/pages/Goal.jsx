@@ -1,29 +1,41 @@
-import { useParams, Link } from "react-router-dom"
+import { useParams, Link, useNavigate } from "react-router-dom"
 import { useGoal } from "../hooks/useGoal"
 import { LoadingSpinner } from "../components/shared/LoadingSpinner"
-import { formatDate, formatRelativeDate } from "../utils/dateHelpers"
+import { formatDate, formatRelativeDate, isPast } from "../utils/dateHelpers"
 import { FaArrowLeft, FaEdit, FaTrash, FaToggleOn, FaToggleOff, FaCheckCircle } from "react-icons/fa"
 import { GoalProgressChart } from "../components/goals/GoalProgressChart"
+import { useState } from "react"
+import { UpdateGoal } from "../components/goals/UpdateGoal"
+import { useDeleteGoal } from "../hooks/mutations/useDeleteGoal"
+import { useToggleGoal } from "../hooks/mutations/useToggleGoal"
 
 export const Goal = () => {
   const { id } = useParams()
   const { data: goal, isLoading, error } = useGoal({ id })
+  const { mutate: deleteGoal } = useDeleteGoal()
+  const { mutate: toggleGoal } = useToggleGoal()
+  const [isUpdateOpen, setIsUpdateOpen] = useState(false)
+
+  const navigate = useNavigate()
+
 
   const handleEdit = () => {
-    // TODO: Open edit modal
-    console.log("Edit goal:", id)
+    setIsUpdateOpen(true)
   }
 
   const handleDelete = () => {
-    if (window.confirm("Are you sure you want to delete this goal?")) {
-      // TODO: Delete goal mutation
-      console.log("Delete goal:", id)
+    if (window.confirm(`Are you sure you want to delete this goal?`)) {
+      deleteGoal(goal, {
+        onSuccess: () => {
+          navigate("/goals")
+        }
+      })
     }
   }
 
   const handleToggleActive = () => {
-    // TODO: Toggle goal active mutation
-    console.log("Toggle active:", id)
+    toggleGoal(goal
+    )
   }
 
   if (isLoading) {
@@ -66,7 +78,7 @@ export const Goal = () => {
   }
 
   const isCompleted = goal.percentageComplete >= 100
-  const isExpired = goal.daysRemaining <= 0 && !isCompleted
+  const isExpired = isPast(goal.endDate)
 
   return (
     <div className="h-full overflow-y-auto">
@@ -312,7 +324,11 @@ export const Goal = () => {
           </div>
         </div>
       </div>
+      <UpdateGoal
+        isOpen={isUpdateOpen}
+        onClose={() => setIsUpdateOpen(false)}
+        goal={goal}
+      />
     </div>
-
   )
 }
