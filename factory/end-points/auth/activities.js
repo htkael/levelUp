@@ -203,6 +203,7 @@ export async function getActivityStats(req, res) {
 
       pg.query(`
         SELECT
+          g.id,
           g."targetValue",
           g."targetPeriod",
           g."startDate",
