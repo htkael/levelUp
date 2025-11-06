@@ -18,6 +18,7 @@ export const useDeleteActivity = () => {
       toast.success("Activity deleted successfully!")
       console.log("vars", variables)
       queryClient.invalidateQueries({ queryKey: ["activities"] })
+      queryClient.invalidateQueries({ queryKey: ["categories"] })
       queryClient.invalidateQueries({ queryKey: ["category", variables.categoryId] })
       queryClient.invalidateQueries({ queryKey: ["categoryStats", variables.categoryId] })
     },
