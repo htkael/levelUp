@@ -15,6 +15,7 @@ import { Activities } from './pages/Activities.jsx'
 import { Activity } from './pages/Activity.jsx'
 import { Calendar } from './pages/Calendar.jsx'
 import { Goals } from './pages/Goals.jsx'
+import { Goal } from './pages/Goal.jsx'
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
         <Route path="activities/:id" element={<Activity />} />
         <Route path="calendar" element={<Calendar />} />
         <Route path="goals" element={<Goals />} />
+        <Route path="goals/:id" element={<Goal />} />
       </Route>
     </Routes>
   )

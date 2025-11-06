@@ -18,6 +18,7 @@ export const useCreateProgressEntry = () => {
     onSuccess: (data) => {
       toast.success("Progress entry created successfully!")
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      queryClient.invalidateQueries({ queryKey: ['goals'] })
       queryClient.invalidateQueries({ queryKey: ['calendar'] })
       queryClient.invalidateQueries({ queryKey: ['calendarDay'] })
       queryClient.invalidateQueries({ queryKey: ['category'] })

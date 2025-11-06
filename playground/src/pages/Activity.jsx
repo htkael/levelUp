@@ -123,7 +123,7 @@ export const Activity = () => {
         </div>
 
         {/* Quick Stats Cards */}
-        <div className="stats stats-vertical lg:stats-horizontal shadow w-full gap-4 shadow-none">
+        <div className="stats stats-vertical lg:stats-horizontal shadow w-full gap-4 ">
           <StatCard
             name="Total Entries"
             value={statsLoading ? <span className="loading loading-spinner loading-md"></span> : stats?.overview?.totalEntries || 0}

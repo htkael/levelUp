@@ -90,6 +90,14 @@ export const CreateGoal = ({ isOpen, onClose }) => {
     }
     createGoal(cleanedData, {
       onSuccess: () => {
+        setFormData({
+          targetValue: null,
+          targetPeriod: null,
+          startDate: null,
+          endDate: null,
+          activityId: null,
+          metricId: null
+        })
         onClose()
       }
     })

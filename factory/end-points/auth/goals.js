@@ -81,7 +81,7 @@ export async function listGoals(req, res) {
     const goals = (await pg.query(query, vals)).rows.map(goal => ({
       ...goal,
       percentageComplete: goal.targetValue > 0
-        ? (goal.currentProgress / goal.targetValue * 100)
+        ? (Math.min(goal.currentProgress / goal.targetValue * 100, 100))
         : 0
     }))
 
@@ -129,7 +129,7 @@ export async function getGoal(req, res) {
           ) as "currentProgress",
           EXTRACT(DAYS FROM AGE($2::date, g."startDate")) as "daysElapsed",
           GREATEST(0, EXTRACT(DAYS FROM AGE(g."endDate", $2::date))) as "daysRemaining",
-          EXTRACT(DAYS FROM AGE(g."endDate", g."startDate)) as "totalDays",
+          EXTRACT(DAYS FROM AGE(g."endDate", g."startDate")) as "totalDays",
           (
             SELECT MAX(pe."entryDate")
             FROM "ProgressMetric" pm
@@ -138,7 +138,30 @@ export async function getGoal(req, res) {
             AND pe."activityId" = g."activityId"
             AND pe."entryDate" >= g."startDate"
             AND pe."entryDate" <= g."endDate"
-          ) as "lastEntryDate"
+          ) as "lastEntryDate",
+          (
+            SELECT COALESCE(JSON_AGG(
+              JSON_BUILD_OBJECT(
+                'id', pe.id,
+                'activityId', pe."activityId",
+                'userId', pe."userId",
+                'entryDate', pe."entryDate",
+                'notes', pe.notes,
+                'createdAt', pe."createdAt",
+                'updatedAt', pe."updatedAt",
+                'value', pm.value,
+                'metricName', am."metricName",
+                'unit', am.unit
+              )
+            ), '[]'::json)
+            FROM "ProgressMetric" pm
+            LEFT JOIN "ProgressEntry" pe ON pm."entryId" = pe.id
+            LEFT JOIN "ActivityMetric" am ON pm."metricId" = am.id
+            WHERE pm."metricId" = g."metricId"
+            AND pe."activityId" = g."activityId"
+            AND pe."entryDate" >= g."startDate"
+            AND pe."entryDate" <= LEAST(g."endDate", $2::date)
+          ) as "allEntries"
       FROM "Goal" g
       LEFT JOIN "Activity" a ON g."activityId" = a.id
       LEFT JOIN "Category" c ON a."categoryId" = c.id
@@ -170,7 +193,7 @@ export async function getGoal(req, res) {
     let goal = {
       ...goalData,
       percentageComplete: goalData.targetValue > 0
-        ? (goalData.currentProgress / goalData.targetValue * 100)
+        ? (Math.min(goalData.currentProgress / goalData.targetValue * 100, 100))
         : 0
     }
 

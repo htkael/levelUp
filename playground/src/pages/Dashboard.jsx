@@ -88,7 +88,6 @@ export const Dashboard = () => {
     )
   }
 
-  // Safe access to data with defaults
   const stats = data?.stats || {}
   const recentActivities = data?.recentActivities || []
   const categories = data?.categories || []

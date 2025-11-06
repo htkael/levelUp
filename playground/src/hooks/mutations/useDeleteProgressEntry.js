@@ -18,6 +18,7 @@ export const useDeleteProgressEntry = () => {
     onSuccess: (data, variables) => {
       toast.success("Progress entry deleted successfully!")
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      queryClient.invalidateQueries({ queryKey: ['goals'] })
       queryClient.invalidateQueries({ queryKey: ['calendarDay'] })
       queryClient.invalidateQueries({ queryKey: ['calendar'] })
       queryClient.invalidateQueries({ queryKey: ['category'] })
